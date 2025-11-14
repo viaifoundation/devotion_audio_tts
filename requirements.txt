@@ -1,3 +1,4 @@
 google-cloud-texttospeech
+google-generativeai
 pydub
 edge-tts
