@@ -8,16 +8,26 @@ from bible_parser import convert_bible_reference
 
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
-靈晨靈糧11月14日纪明新弟兄：<“恩典25”第35篇：在基督里的恩典>
+靈晨靈糧11月21日Jerry长老：<“恩典25”第40篇：圆上帝的梦>
 
-我于2011年通过弟兄姐妹介绍进入基督之家第六家，在这之前自己虽然已受洗成为基督徒，但因根基甚浅，甚至是没根基的基督徒，还是随着世界走，自己我行我素，从不听别人的建议，好大喜功。当我第一次看到这么多有热心、爱心和快乐单纯的弟兄姐妹，就像圣经教导的“我实在告诉你们，凡要接受上帝国的，若不像小孩子，绝不能进去。”（马可福音 10:15）这节经文真实地把我当时进到教会所看见的场景印在我心中 ，更加巧合的是碰到了一位弟兄（到教会才知道姓程名阳杰），我们是在一次远志明牧师布道会认识的，我当时认定这就我们的家了！后来良友小组分为A、B两个小组，但两个小组弟兄姐妹们的爱始终在我心中永不分离。“神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不致灭亡，反得永生。”（约翰福音‬3:16）
+感谢神给我们预备了连续40天的见证数算神在基督六家的恩典！明天下午3点，基督六家教会将迎来25周年的庆典！愿神带领基督六家的弟兄姊妹们不仅经历主恩，更愿意摆上自己作为器皿为神使用 — 一起圆上帝的梦！
 
-通过在小组团契生活和良友小组常去露营的集体生活里，我感受到弟兄们和睦同居的快乐，在纪念教会25周年感恩的历程中，自己和家人都是在主恩典中成长与度过，越是在患难中，越能体会神的恩典在其中。
+2013 年年初，当黎牧师和张长老多次鼓励我出来接受长老职分的时候，我一直不敢拒绝，因为怕神不喜悦，但也一直不敢答应，因为神没发话。直到 5 月份一天的夜里，神亲自对我说话： “Jerry, It is not about your dream, it is about my dream on you.” 当我听到这句话的时候，心中吃下了定心丸：我要定位成为上帝的器皿，圆上帝通过我的梦，做成祂喜悦的工。
 
-我于2015被查出患有肝癌的早期发现，这本来就是不可能的事情，因为肝癌没有早期发现这一说，等到发现就是晚期了，只有等待见上帝的份了！真是感谢主，因着自己连续发高烧低烧而把主要的肝癌查出来，万事互相效力，叫爱神的人得益处。
+这个梦是关于”人人传福音”！黎牧师非常注重随时随地地传福音，给我很好的榜样。经过多年的网宣学习，当遇到了疫情的特殊历史事情，我特别感受到神特别的引领要抓住机遇落实网络宣教。感谢神！借助于 “网宣5分钟” 和 “福音5分钟” 的不断摸索和实践，神不仅带领基督六家最终成就了 “福音 500 分” 的网宣集体见证，也给教会预备了两位优秀的年轻传道人！教会更是在这个基础上推行 “十字传讲好消息” 的福音紮马步训练和在此基础上的 “四点八字传福音” 门训，算是在推动 “人人传福音” 的异象上有了不一样的开启和摸索。谢谢神的供应和指引！
 
-感恩当教会知道我得癌症的信息后，马上就为我和我的家做了40天的禁食祷告，神是垂听祷告的神，在圣灵的引导和医生仔细的手术下，我得到医治和平安。耶稣说：“我去医治他。”（马太福音 8:7）；“我留下平安给你们，我把我的平安赐给你们。我所赐给你们的，不像世人所赐的。你们心里不要忧愁，也不要胆怯。”（约翰福音 14:27）在手术后的休养期间，黎牧师每周一带我上韩国祷告山祷告，使我在山上得以平静地聆听神的话，也爱上了上山祷告的生活，更加快乐地面对自己患难，为主做见证，感谢赞美主！
+这个梦是关于“国度的传承”！感谢神使用黎牧师的国度胸怀，坚持在基督六家教会培养年轻的同工，解决了许多华人教会没有解决好的年轻化和传承的问题。我深知华人教会在传福音和年轻化这两点上的硬核需要，也知道神给的托付，要在这一块上做出示范型的见证 —— 做好继承也做好创新，并为向更年轻化的传承打好根基。神带领我们在疫情前就定下了教会的 MVP，在平行双轨（儿童到英文部的英文 “轨” 和包括粤语部和国语部的中文 “轨”）的运行机制中，分别定下了 NGS（下一代事工策略）和 NLT（仆人领导力培训）的战略并付诸实践。在具体实施层面，通过 Church Center 的建立提供教会的骨架支撑，更是通过 “做个 6G 基督徒” 的倡导，逐步在牧养层面落实属灵层面的传承，为更深更远关于承传的发展打下根基。
 
+这个梦是关于“健康的门训”！主耶稣颁布的大使命的核心是关于做主的门徒。受洗只是一个门徒的开始，更需要健康的门训的跟进。教会在过去许多年不断摸索的 CROSS 门训模式逐渐成型也在成熟中。教会不仅要带领人在核心 Core 课程上有基要真理的学习，受洗加入神的国度，也要让属灵的孩子在主内通过必修 Required 课程全面健康不偏食地健康成长并长大，更要参与教会能提供的各类优化 Optimized 课程的培训。在如此 “内聚于基督” 受训的基础上，相信更可以 “外散到世界” 去服事。教会强调每个基督徒从 personal 到public 层面都能参与到国度的服事 Serve。如此通过 CROSS 门训系统受训的肢体相信可以更好为主使用，“一生一世” 与主同行，“且要住在耶和华的殿中，直到永远”。
+
+感谢神带领我在基督六家成长！我也深知需要尽量效法上一代人的属灵榜样，把上帝托付的梦勇往直前去耕耘去摆上。我在 2018 年 6 月从职场退出就一边牧会，一边参与在圣言讲道及研经学院和随后的达拉斯神学院接受进一步装备。我感谢神，赐给我一个同心合意的长执和教牧团队，大家齐心协力带领教会一同参与圆梦的行动！ 
+
+愿神拣选带领一代代一批批的子民参与愿上帝托付之梦！求神不断赐下恩典带领基督六家在年轻化和传福音门训上不断成长！迎接下一个蒙神喜悦发展的 25 年！
+
+左一为Jerry（2012年第一次参与美中短宣）
+2022年1月2日履职执行长老
+左一为Jerry（欢送Pastor Theron）
+上山祷告中
 
 """
 
@@ -85,7 +95,9 @@ zh-TW,zh-TW-HanHanNeural,Female,Friendly,General
 """
 # Voice settings
 FIRST_VOICE = "zh-CN-XiaoxiaoNeural"  # First voice (introduction)
-SECOND_VOICE = "zh-CN-YunjianNeural"  # Second voice (main content)
+SECOND_VOICE = "zh-CN-YunyangNeural"  # Second voice (main content)
+#SECOND_VOICE = "zh-HK-HiuGaaiNeural"  # First voice (introduction)
+#FIRST_VOICE = "zh-HK-WanLungNeural"  # Second voice (main content)
 #SECOND_VOICE = "zh-CN-XiaoyiNeural"  # Second voice (main content)
 #FIRST_VOICE = "zh-HK-WanLungNeural"  # First voice (introduction)
 #SECOND_VOICE = "zh-HK-HiuGaaiNeural"  # Second voice (main content)
@@ -100,7 +112,7 @@ SECOND_VOICE = "zh-CN-YunjianNeural"  # Second voice (main content)
 #SECOND_VOICE = "zh-CN-XiaoxiaoNeural"  # Second voice (main content)
 #SECOND_VOICE = "zh-HK-WanLungNeural"  # First voice (introduction)
 #FIRST_VOICE = "zh-HK-HiuGaaiNeural"  # Second voice (main content)
-OUTPUT = "/Users/mhuo/Downloads/bread_1115.mp3"
+OUTPUT = "/Users/mhuo/Downloads/bread_1121.mp3"
 TEMP_DIR = "/Users/mhuo/Downloads/"  # For temp files
 TEMP_FIRST = "/Users/mhuo/Downloads/temp_first_bread.mp3"
 TEMP_SECOND = "/Users/mhuo/Downloads/temp_second_bread.mp3"

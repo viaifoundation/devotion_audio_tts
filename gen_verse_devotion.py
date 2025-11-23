@@ -6,26 +6,44 @@ import os
 from bible_parser import convert_bible_reference
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
-敬拜我们美善的神
+赐各样安慰的神
 
-“耶和华啊，你是我的　神； 我要尊崇你，我要称赞你的名。 因为你以忠信诚实行过奇妙的事， 成就你古时所定的。”
-以赛亚书 25:1
+“因我－耶和华是不改变的，所以你们雅各之子没有灭亡。
+(玛拉基书 3:6 和合本)
+我的弟兄们，你们落在百般试炼中，都要以为大喜乐；因为知道你们的信心经过试验，就生忍耐。但忍耐也当成功，使你们成全、完备，毫无缺欠。
+(雅各书 1:2-4 和合本)
 
-敬拜我们美善的神
+我虽然行过死荫的幽谷，
+也不怕遭害，
+因为你与我同在；
+你的杖，你的竿，都安慰我。
+(诗篇 23:4 和合本)
 
-敬拜神是基督徒生活中最核心且最基本的属灵操练。神的子民积极地敬拜他的记载贯穿整本圣经。圣经里充满了专为敬拜神而写的曲子和诗歌。
+赐各样安慰的神
 
-我们常常认为敬拜就是唱赞美诗，但敬拜远不止于此。事实上，当我们把对神的敬拜仅限于唱歌时，我们就错过了基督徒生活中一个很关键的层面。
+在古代以色列，牧羊人的杖和竿保护和引导羊群，甚至用来提醒羊群牧羊人就在现场。因此，大卫王（他小时候是牧羊人）用诗篇 23:4 中的比喻来传达这个真理：神是他的保护者和引导者。
 
-圣经中的敬拜不仅仅是唱歌。正确地思念和赞美神的属性以及他所行的事，就是敬拜。当我们承认神就是神时──当我们敬畏他的性情和他的供应时，敬拜就油然而生了。
+大卫王多次面对死亡威胁，敌人一心想要杀死他。他也备受自己的罪恶问题和个人错误的困扰。但在这一切之中，他一再将注意力转向神的信实和神的保证。
 
-这意味着我们可以在一天中的任何时刻敬拜神。当我们感谢神的仁慈时，那就是敬拜；当我们敬畏他的荣美时，那就是敬拜。
+他从哪里找到这些确据呢？
 
-在以赛亚书 25 :1 中，先知以赛亚正是以这种方式赞美神。以赛亚因为神的属性以及作为他个人的神称颂他。他也因为神的信实而敬拜他。最后，以赛亚赞美神所做的一切奇妙的事。
+大卫王应该有深入研习希伯来文经卷，妥拉──即圣经中的前五本书，又称摩西五经。
 
-以赛亚当时可能根本没有唱歌，但他的言语和行为告诉我们，他在敬拜神的属性和神的作为。以赛亚对神的伟大和奇妙有无比的敬畏。
+对希伯来人来说，妥拉不仅仅是关于神的故事，也是神的话语；那是神的权威、应许和指引。大卫的生活以及他的诗篇正是基于妥拉中的教导。大卫能写下神的属性，因为：
 
-今天花点时间想一想神。思考他的性情；他是美善、信实和慈爱的。想一想他赐给你的福分。静坐几分钟敬仰神的属性，心无旁骛地敬拜他。
+一、他熟读神的话语。
+二、他根据神的话语来经历神的信实与恩惠。
+
+我们也可以有这样的体验──甚至更多。我们有旧约中古代先知所启示的神的话语；耶稣在世时的话语；耶稣通过新约的使徒和作者所启示的话语。换句话说，我们可以拥有大卫所拥有的：
+
+一、我们可以熟读神的话语。
+二、我们可以根据神的话语来体验神的信实与恩惠。
+
+读一读耶稣对门徒所说的话：
+
+“我将这些事告诉你们，是要叫你们在我里面有平安。在世上，你们有苦难；但你们可以放心，我已经胜了世界。”（约翰福音 16:33）
+
+像大卫一样，我们没有什么可害怕的，因为神近在咫尺──他是我们的安慰。熟习圣经能帮助我们有把握地相信，神现在和将来都会信实地为爱他的人提供保护和指引；他也会与他们同在。所以，今天就下定决心将神的话深深印在心里。
 """
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
@@ -33,7 +51,8 @@ TEXT = convert_bible_reference(TEXT)
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
 first_paragraphs = [paragraphs[0]] # First paragraph (introduction)
 second_paragraphs = [paragraphs[1]] # Second paragraph
-third_paragraphs = ["\n\n".join(paragraphs[2:])] # All remaining paragraphs
+third_paragraphs = [paragraphs[2]] # Third paragraph
+fourth_paragraphs = ["\n\n".join(paragraphs[3:])] # All remaining paragraphs
 """
 Locale,ShortName,Gender,Voice Personalities,Content Categories
 zh-CN,zh-CN-XiaoxiaoNeural,Female,Warm,"News, Novel"
@@ -52,10 +71,12 @@ zh-TW,zh-TW-HsiaoYuNeural,Female,"Friendly, Positive",General
 zh-TW,zh-TW-YunJheNeural,Male,"Friendly, Positive",General
 """
 # Voice settings
-FIRST_VOICE = "zh-CN-YunyangNeural" # First voice (introduction)
-THIRD_VOICE = "zh-CN-XiaoxiaoNeural" # Second voice (second paragraph)
-SECOND_VOICE = "zh-CN-YunxiNeural" # Third voice (remaining paragraphs)
-OUTPUT = "/Users/mhuo/Downloads/verse_1114.mp3"
+FIRST_VOICE = "zh-CN-YunxiNeural" # First voice (introduction)
+SECOND_VOICE = "zh-CN-XiaoyiNeural" # Second voice (second paragraph)
+THIRD_VOICE = "zh-CN-YunyangNeural" # Third voice (third paragraph)
+FOURTH_VOICE = "zh-CN-XiaoxiaoNeural" # Fourth voice (remaining paragraphs)
+#THIRD_VOICE = "zh-CN-XiaoxiaoNeural" # Second voice (second paragraph)
+OUTPUT = "/Users/mhuo/Downloads/verse_1123.mp3"
 TEMP_DIR = "/Users/mhuo/Downloads/" # For temp files
 TEMP_FIRST = "/Users/mhuo/Downloads/temp_first_verse.mp3"
 TEMP_SECOND = "/Users/mhuo/Downloads/temp_second_verse.mp3"
@@ -110,8 +131,25 @@ async def main():
         third_audio += segment
         if i < len(third_segments) - 1: # Add silence between segments, not after last
             third_audio += silence
-    # Combine first, second, and third with a pause between sections
-    combined_audio = first_audio + silence + second_audio + silence + third_audio
+
+    # Generate and collect fourth voice audio segments (for remaining paragraphs)
+    fourth_segments = []
+    for i, para in enumerate(fourth_paragraphs):
+        temp_file = f"{TEMP_DIR}temp_fourth_verse_{i}.mp3"
+        await generate_audio(para, FOURTH_VOICE, temp_file)
+        print(f"✅ Generated fourth voice chunk {i}: {temp_file}")
+        segment = AudioSegment.from_mp3(temp_file)
+        fourth_segments.append(segment)
+        os.remove(temp_file) # Clean up immediately
+
+    # Concatenate fourth segments with short silence between
+    fourth_audio = AudioSegment.empty()
+    for i, segment in enumerate(fourth_segments):
+        fourth_audio += segment
+        if i < len(fourth_segments) - 1: # Add silence between segments, not after last
+            fourth_audio += silence
+    # Combine first, second, third and fourth with a pause between sections
+    combined_audio = first_audio + silence + second_audio + silence + third_audio + silence + fourth_audio
     combined_audio.export(OUTPUT, format="mp3")
     print(f"✅ Combined audio saved: {OUTPUT}")
 if __name__ == "__main__":
