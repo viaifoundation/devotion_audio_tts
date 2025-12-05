@@ -5,30 +5,38 @@ import edge_tts
 from pydub import AudioSegment
 import os
 from bible_parser import convert_bible_reference
+from text_cleaner import remove_space_before_god
 
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
-靈晨靈糧11月26日管雪晖姊妹：<“恩典25”第43篇：从心感恩>
+靈晨靈糧12月3日罗丽芳姊妹：<“恩典25”第48篇：打通信主的“任督二脉”>
 
-2002年先生的哥哥从外州搬回加州，暂时住在我们家，妯娌想找华人教会，离家最近租在学校的六家便成为首先考慮。不曾想到从此半生岁月，许多记忆都与 “基督之家六家” 有关 一一 回忆起来，神的恩典满满！
+我是典型的从中国来的 “无神论“ 的理科生，国内读了本科硕士，从未接触过宗教，然后来美国读博士学位。
 
-第一感恩黎牧师和黎师母为我们开查经班，在他们热心、耐心、恒心、爱心的带领下，成功地将两个资深的佛教徒（妈妈和明璇的妈妈），还有无神论的爸爸感化了，正式归入基督名下，成为虔诚的基督徒！
+其实我从 2005 年左右就开始接触基督徒了，在东部大学城攻读博士学位的第二年，有一位从中部搬来的白人牧师，经常邀请留学生周末去他家吃饭。为什么他们可以那样无私的为我们付出呢？这是一个我完全理解不了的世界，也没大兴趣去了解，甚至对传教反感。
 
-第二感恩亲身见证六家从租堂到拥有自己的堂址。想当年牧者与兄弟姐妹们心连心，大家伙热情团结，有钱出钱，有力出力，共同建造神的家，何其美好！搬进新堂那天，有如自己搬新家般兴奋！那种发自内心感谢赞美主的喜乐，时至今日仍记忆犹新！
+后来到南加工作，接触了台湾陈妈妈、陈爸爸，他们60岁左右，开快餐店，养育子女，非常辛苦，但是每周五晚上敞开他们的家，做美味的佳肴给大家吃。他们的喜乐和面对生活挑战时所拥有的平安让我好奇这不一样的世界，开启了我慕道的漫长之路。虽然在弟兄姊妹的帮助下，我和先生 2010 年受洗了，但是我的头脑依然没被说服神创造万物、基督是我们的救赎。我的心仍是坚硬的，所谓 “见其门，但不得入其门”。
 
-第三感恩六家举办的灵命认养！两个儿子被爱神爱人的王树贤奶奶相中，从孩童时读书，到长大后工作，奶奶事无巨细，一一了解，天天为他们祷告！连我这个亲妈都自叹不如。逢年过节、孩子毕业还送红包！去年奶奶弥留之际，高烧昏迷后一醒，马上向晓筠晓姐询问，同样在医院昏迷的妈妈情况如何？因着基督，没有血缘胜似血缘，每次见面都像自家奶奶一样，无话不说，亲密无比，这份舒适又纯粹的感情非常难得可贵！我们却因着基督白白得着，何其有幸！
+这种慕道但不信的状态一直持续了 15 年左右。2012 年初，我搬到了湾区，加入了基督六家。2016 年，我的孩子参加了颜牧师和Sharon 师母带领的 AWANA，我也在 AWANA服侍。我愿意读经但不主动读经，愿意敬拜但不把敬拜当成最重要的事情之一。因为我不真的信，心里很虚，无法做孩子们真正属灵的老师，也无法在家里做孩子们属灵的母亲；去教会也变成很挣扎的事情，经不起各种试探如工作忙碌、家人不统一、孩子的其他活动等。经常不去教会，我内心滋生愧疚，愧疚滋生逃避，逃避滋生远离。当我遇到难题时，经常转向学理（比如心理学），只依靠小我，而不是信靠主。我很少祷告，我不信也觉得自己不配，同时心中缺少谦卑。我的不信和小我的骄傲几乎完全阻断了我和天父的关系。2025 上半年，我甚至开始考虑要不要完全放弃教会，放弃游离纠结的状态，走一条其他的路。
 
-第四感恩颜牧师和秀容师母为教会成立 AWANA！他们用爱的行为言传身教，培养我们的孩子。最令人感动的是，毎次祷告时间，儿子都要求颜牧师为他生病的外婆祷告，小小年纪，在充满爱的氛围中，耳闻目染很自然地学会了关爱他人。这对于孩子的成长绝对是加分项并且受益终身！
+即使这样，神永远没有放弃我这只长期迷途的羔羊。在这期间，他派了许多兄弟姊妹来引领我，他们的见证像吸铁石一样，又让我远离时不由自主地靠近，比如，近期良友B组和橄榄树小组的查经，Jerry长老和师母长久以来的呼召和为我家的祷告，利萍师母敞开的怀抱。Jerry 长老倾听我的家庭琐碎的烦恼，还帮我们立家规，为我们祈祷，让我非常感动。
 
-第五感恩六家是一个注重祷告的教会。十多年来，家母的身体遭受各种磨难！从洗肾到换肾，到后来医疗事故⋯⋯大大小小二十几次手术。晓筠姐自己身体时常不好，还时刻关注并跟进，妈妈手术前会在教会的 “大使命祷告网” 让众兄弟姐妹们迫切为我们祷告！记得黎牧师和张平夷长老还曾为妈妈抹油祷告！还有曹一星姐妹长年累月，一天七次为妈妈祷告，也曾为妈妈的手术禁食祷告！祷告的力量何其大，使患难中担忧无助的我们得着安慰，不再孤单害怕！
+如果说有一个转折点，那就是于师母教导的基督生平的课程一，这个课程一般参加者为资深基督的，我这个迷路的人在利萍师母和Linwei的帮助下，最后一个混进去了。意想不到的是，我被打通了信的任督二脉。以前对我来说，耶稣基督像一个神话故事里的人物，上完第一期的课后，他变得又真又活，兼备人性和神性，是完美的神。
 
-最后感恩母亲病重期间，徐牧师、素娥师母、李长老、包赟师母、程长老、剑闻师母、方丽鸿传道、晓筠姐、谷大哥、曹大姐、Larry、芳芳姐、刘大哥、伟红姐妹、黛青姐妹、Jessica 姐妹到医院和家里探望关心！煲了汤，带了营养品、电热毯来，却怕打扰我们休息默默摆放在家门口⋯⋯感恩您们用爱的行动，诠释了什么叫无条件的爱！人生不易，而有爱则有力量！谢谢大家在我们最艰难时的陪伴！感谢神！因着 “基督之家第六家” 让我们成为主内一家人！一切荣耀归于我们的真神！！
+感谢赞美主，我终于不在心虚，开始真诚的信靠主。我开始主动一个人读圣经，意识到我之前不信，一个主要原因是我在知识上没有预备好，没有真正的读懂圣经。我更加享受教会的各种活动。写下上面文字的时候，我们全家正参加了FVC基督徒5天4夜的家庭度假，宴信中牧师让我有许多感动。God is good。
+
+以前我学习了许多心理学方面的知识和技巧，虽然知道，但常常做不到。我的自傲让我常常愧疚。现在，我更能谦卑下来：主啊，我有我的软弱和罪过，你却爱着这样的我。
+
+“哥林多后书 12:9“他对我说：「我的恩典够你用的，因为我的能力是在人的软弱上显得完全。」所以，我更喜欢夸自己的软弱，好叫基督的能力覆庇我。”
+
+期待以后在六家的大家庭中有信有靠有望的日子。
 
 
 """
 
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
+TEXT = remove_space_before_god(TEXT)
 
 # Split the text into paragraphs
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
@@ -92,8 +100,8 @@ zh-TW,zh-TW-HanHanNeural,Female,Friendly,General
 # Voice settings
 FIRST_VOICE = "zh-CN-XiaoxiaoNeural"  # First voice (introduction)
 SECOND_VOICE = "zh-CN-YunyangNeural"  # Second voice (main content)
-FIRST_VOICE = "zh-HK-WanLungNeural"  # Second voice (main content)
-SECOND_VOICE = "zh-HK-HiuGaaiNeural"  # First voice (introduction)
+#FIRST_VOICE = "zh-HK-WanLungNeural"  # Second voice (main content)
+#SECOND_VOICE = "zh-HK-HiuGaaiNeural"  # First voice (introduction)
 #SECOND_VOICE = "zh-CN-XiaoyiNeural"  # Second voice (main content)
 #FIRST_VOICE = "zh-HK-WanLungNeural"  # First voice (introduction)
 #SECOND_VOICE = "zh-HK-HiuGaaiNeural"  # Second voice (main content)
@@ -108,7 +116,7 @@ FIRST_VOICE = "zh-CN-YunyangNeural"  # First voice (introduction)
 SECOND_VOICE = "zh-CN-XiaoxiaoNeural"  # Second voice (main content)
 #SECOND_VOICE = "zh-HK-WanLungNeural"  # First voice (introduction)
 #FIRST_VOICE = "zh-HK-HiuGaaiNeural"  # Second voice (main content)
-OUTPUT = "/Users/mhuo/Downloads/bread_1126.mp3"
+OUTPUT = "/Users/mhuo/Downloads/bread_1203.mp3"
 TEMP_DIR = "/Users/mhuo/Downloads/"  # For temp files
 TEMP_FIRST = "/Users/mhuo/Downloads/temp_first_bread.mp3"
 TEMP_SECOND = "/Users/mhuo/Downloads/temp_second_bread.mp3"
