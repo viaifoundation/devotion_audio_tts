@@ -111,6 +111,6 @@ if main_segments:
 else:
     seg_main = AudioSegment.silent(0)
 
-final = seg_intro + AudioSegment.silent(duration=600) + seg_main
+final = seg_intro + AudioSegment.silent(duration=600, frame_rate=24000) + seg_main
 final.export(OUTPUT_PATH, format="mp3", bitrate="192k")
 print(f"Success! Saved → {OUTPUT_PATH}")
