@@ -127,32 +127,75 @@ def speak(text: str, voice: str) -> AudioSegment:
     # Load into pydub
     return AudioSegment.from_mp3(io.BytesIO(response.audio_content))
 
-print("Generating parts with Gemini TTS...")
-segments = []
-for i, para in enumerate(paragraphs):
-    print(f"Part {i+1}/{len(paragraphs)} → {voices[i % len(voices)]}")
+# Group paragraphs into 5 logical sections
+# 1. Intro (Title/Date)
+# 2. Scripture 1
+# 3. Scripture 2
+# 4. Main Body (Middle paragraphs)
+# 5. Prayer (Last paragraph)
+
+if len(paragraphs) < 5:
+    # Fallback
+    logical_sections = [[p] for p in paragraphs]
+else:
+    logical_sections = [
+        [paragraphs[0]],              # Intro
+        [paragraphs[1]],              # Scripture 1
+        [paragraphs[2]],              # Scripture 2
+        paragraphs[3:-1],             # Main Body
+        [paragraphs[-1]]              # Prayer
+    ]
+
+# Ensure we don't exceed available voices
+num_sections = len(logical_sections)
+section_titles = ["Intro", "Scripture 1", "Scripture 2", "Main Body", "Prayer"]
+print(f"Processing {num_sections} logical sections...")
+
+final_segments = []
+global_p_index = 0
+
+for i, section_paras in enumerate(logical_sections):
+    title = section_titles[i] if i < len(section_titles) else f"Section {i+1}"
+    print(f"--- Section {i+1}: {title} ---")
     
-    # Check length (Google limit is ~5000 bytes, but use chunking for consistency)
-    if len(para) > 1000:
-        chunks = chunk_text(para, 1000)
-        print(f"  Split into {len(chunks)} chunks due to length.")
-        para_segment = AudioSegment.empty()
-        for chunk in chunks:
-            if chunk.strip():
-                para_segment += speak(chunk, voices[i % len(voices)])
-        segments.append(para_segment)
-    else:
-        segments.append(speak(para, voices[i % len(voices)]))
+    section_audio = AudioSegment.empty()
+    # Assuming silence same as 'silence' defined later, but we need it here.
+    # We'll use 24000 as default or detect from first segment if available.
+    silence_between_paras = AudioSegment.silent(duration=700, frame_rate=24000)
+
+    for j, para in enumerate(section_paras):
+        voice = voices[global_p_index % len(voices)]
+        print(f"  > Part {i+1}.{j+1} - {voice} ({len(para)} chars)")
+        global_p_index += 1
+        
+        current_segment = AudioSegment.empty()
+        # Check length
+        if len(para) > 1000:
+            chunks = chunk_text(para, 1000)
+            print(f"    Split into {len(chunks)} chunks due to length.")
+            for chunk in chunks:
+                if chunk.strip():
+                    current_segment += speak(chunk, voice)
+        else:
+            current_segment = speak(para, voice)
+            
+        section_audio += current_segment
+        
+        if j < len(section_paras) - 1:
+            section_audio += silence_between_paras
+            
+    final_segments.append(section_audio)
 
 final = AudioSegment.empty()
 
 # Determine sample rate from first segment to ensure consistency
-frame_rate = segments[0].frame_rate if segments else 24000
-silence = AudioSegment.silent(duration=700, frame_rate=frame_rate)
+# Determine sample rate from first segment to ensure consistency
+frame_rate = final_segments[0].frame_rate if final_segments else 24000
+silence = AudioSegment.silent(duration=1000, frame_rate=frame_rate)
 
-for i, seg in enumerate(segments):
+for i, seg in enumerate(final_segments):
     final += seg
-    if i < len(segments) - 1:
+    if i < len(final_segments) - 1:
         final += silence
 
 final.export(OUTPUT_PATH, format="mp3", bitrate="192k")

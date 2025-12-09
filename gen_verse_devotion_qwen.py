@@ -17,7 +17,7 @@ dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
 if not dashscope.api_key:
     raise ValueError("Please set DASHSCOPE_API_KEY in ~/.secrets")
 
-OUTPUT_PATH = "/Users/mhuo/Downloads/verse_20251209.mp3"
+OUTPUT_PATH = "/Users/mhuo/Downloads/VOTD_Jeremiah-33-14_2025-12-09.mp3"
 
 
 
@@ -54,11 +54,11 @@ TEXT = """
 
 神对更美好未来的应许也适用于你。当我们献上全身心来追求神时，我们就会找到平安、力量和满足。我们能够满怀信心地生活，因为知道终有一天，我们将与耶稣共度永生。我们拥有新生命，并相信神已经实现了他的应许。
 
-祷告
+祷告 :
 神啊，
 帮助我对你的美好应许充满信心。你是信实的，而且必不离弃我。所以求你让我远离消极或绝望，并帮助我用我的一生来追随你。
 奉耶稣的名，
-阿们。
+阿们 。
 """
 
 TEXT = convert_bible_reference(TEXT)
@@ -124,19 +124,24 @@ else:
 
 # Ensure we don't exceed available voices
 num_sections = len(logical_sections)
+section_titles = ["Intro", "Scripture 1", "Scripture 2", "Main Body", "Prayer"]
 print(f"Processing {num_sections} logical sections...")
 
 final_segments = []
+global_p_index = 0
 
 for i, section_paras in enumerate(logical_sections):
-    voice = voices[i % len(voices)]
-    print(f"--- Section {i+1} ({voice}) ---")
+    title = section_titles[i] if i < len(section_titles) else f"Section {i+1}"
+    print(f"--- Section {i+1}: {title} ---")
     
     section_audio = AudioSegment.empty()
     silence_between_paras = AudioSegment.silent(duration=700, frame_rate=24000)
 
     for j, para in enumerate(section_paras):
-        print(f"  > Part {i+1}.{j+1} ({len(para)} chars)")
+        # Cycle voices based on global paragraph count to match original behavior
+        voice = voices[global_p_index % len(voices)]
+        print(f"  > Part {i+1}.{j+1} - {voice} ({len(para)} chars)")
+        global_p_index += 1
         
         # Check length and chunk if needed
         if len(para) > 450:

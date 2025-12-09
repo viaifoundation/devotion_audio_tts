@@ -98,89 +98,64 @@ async def generate_audio(text, voice, output_file):
     communicate = edge_tts.Communicate(text=text, voice=voice)
     await communicate.save(output_file)
 async def main():
-    # Generate and collect first voice audio segments (for first paragraph)
-    first_segments = []
-    for i, para in enumerate(first_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_first_verse_{i}.mp3"
-        await generate_audio(para, FIRST_VOICE, temp_file)
-        print(f"✅ Generated first voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
-        first_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
-    # Concatenate first segments with short silence between
-    silence = AudioSegment.silent(duration=500) # 0.5s pause; adjust as needed
-    first_audio = AudioSegment.empty()
-    for i, segment in enumerate(first_segments):
-        first_audio += segment
-        if i < len(first_segments) - 1: # Add silence between segments, not after last
-            first_audio += silence
-    # Generate and collect second voice audio segments (for second paragraph)
-    second_segments = []
-    for i, para in enumerate(second_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_second_verse_{i}.mp3"
-        await generate_audio(para, SECOND_VOICE, temp_file)
-        print(f"✅ Generated second voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
-        second_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
-    # Concatenate second segments with short silence between
-    second_audio = AudioSegment.empty()
-    for i, segment in enumerate(second_segments):
-        second_audio += segment
-        if i < len(second_segments) - 1: # Add silence between segments, not after last
-            second_audio += silence
-    # Generate and collect third voice audio segments (for remaining paragraphs)
-    third_segments = []
-    for i, para in enumerate(third_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_third_verse_{i}.mp3"
-        await generate_audio(para, THIRD_VOICE, temp_file)
-        print(f"✅ Generated third voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
-        third_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
-    # Concatenate third segments with short silence between
-    third_audio = AudioSegment.empty()
-    for i, segment in enumerate(third_segments):
-        third_audio += segment
-        if i < len(third_segments) - 1: # Add silence between segments, not after last
-            third_audio += silence
+    # Group paragraphs
+    if len(paragraphs) < 5:
+        logical_sections = [[p] for p in paragraphs]
+    else:
+        logical_sections = [
+            [paragraphs[0]],              # Intro
+            [paragraphs[1]],              # Scripture 1
+            [paragraphs[2]],              # Scripture 2
+            paragraphs[3:-1],             # Main Body
+            [paragraphs[-1]]              # Prayer
+        ]
 
-    # Generate and collect fourth voice audio segments (for remaining paragraphs)
-    fourth_segments = []
-    for i, para in enumerate(fourth_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_fourth_verse_{i}.mp3"
-        await generate_audio(para, FOURTH_VOICE, temp_file)
-        print(f"✅ Generated fourth voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
-        fourth_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
+    # Voice mapping
+    voices = [FIRST_VOICE, SECOND_VOICE, THIRD_VOICE, FOURTH_VOICE, FIFTH_VOICE]
+    section_titles = ["Intro", "Scripture 1", "Scripture 2", "Main Body", "Prayer"]
+    
+    print(f"Processing {len(logical_sections)} logical sections...")
+    final_segments = []
+    global_p_index = 0
 
-    # Concatenate fourth segments with short silence between
-    fourth_audio = AudioSegment.empty()
-    for i, segment in enumerate(fourth_segments):
-        fourth_audio += segment
-        if i < len(fourth_segments) - 1: # Add silence between segments, not after last
-            fourth_audio += silence
+    for i, section_paras in enumerate(logical_sections):
+        title = section_titles[i] if i < len(section_titles) else f"Section {i+1}"
+        print(f"--- Section {i+1}: {title} ---")
+        
+        section_audio = AudioSegment.empty()
+        silence_between_paras = AudioSegment.silent(duration=700) # Edge TTS often returns 24k or 44.1k, pydub handles mixing usually
 
-    # Generate and collect fifth voice audio segments (for last paragraph)
-    fifth_segments = []
-    for i, para in enumerate(fifth_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_fifth_verse_{i}.mp3"
-        await generate_audio(para, FIFTH_VOICE, temp_file)
-        print(f"✅ Generated fifth voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
-        fifth_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
+        for j, para in enumerate(section_paras):
+            voice = voices[global_p_index % len(voices)]
+            print(f"  > Part {i+1}.{j+1} - {voice} ({len(para)} chars)")
+            global_p_index += 1
+            
+            # Edge TTS requires temp file
+            temp_file = f"{TEMP_DIR}temp_v{i}_p{j}.mp3"
+            await generate_audio(para, voice, temp_file)
+            
+            try:
+                segment = AudioSegment.from_mp3(temp_file)
+                section_audio += segment
+                if j < len(section_paras) - 1:
+                    section_audio += silence_between_paras
+            finally:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+        
+        final_segments.append(section_audio)
 
-    # Concatenate fifth segments with short silence between
-    fifth_audio = AudioSegment.empty()
-    for i, segment in enumerate(fifth_segments):
-        fifth_audio += segment
-        if i < len(fifth_segments) - 1: # Add silence between segments, not after last
-            fifth_audio += silence
-    # Combine all five with a pause between sections
-    combined_audio = first_audio + silence + second_audio + silence + third_audio + silence + fourth_audio + silence + fifth_audio
-    combined_audio.export(OUTPUT, format="mp3")
+    # Combine all sections
+    final = AudioSegment.empty()
+    silence_sections = AudioSegment.silent(duration=1000)
+
+    for i, seg in enumerate(final_segments):
+        final += seg
+        if i < len(final_segments) - 1:
+            final += silence_sections
+
+    final.export(OUTPUT, format="mp3")
     print(f"✅ Combined audio saved: {OUTPUT}")
+
 if __name__ == "__main__":
     asyncio.run(main())
