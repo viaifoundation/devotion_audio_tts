@@ -1,0 +1,5 @@
+git+https://github.com/microsoft/VibeVoice.git
+torch>=2.0
+torchaudio
+pydub>=0.25.1
+numpy>=1.26.0

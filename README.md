@@ -1,92 +1,68 @@
 # Devotion Audio TTS
 
-This project generates text-to-speech (TTS) audio for Chinese Bible devotionals, splitting the text into sections read by different voices. It includes scripts to process devotional texts, convert Bible references (e.g., "罗马书 1:17" to "罗马书 1 章 17 節"), and produce MP3 audio files using Google Cloud Text-to-Speech, edge-tts, and pydub.
+This project generates text-to-speech (TTS) audio for Chinese Bible devotionals using multiple providers: **Microsoft Edge TTS**, **Google Cloud TTS (Gemini)**, and **Alibaba Cloud Qwen**.
 
 ## Project Structure
 
-- `bible_parser.py`: Shared module to convert Bible references (e.g., "罗马书 1:17" to "罗马书 1 章 17 節").
-- `gen_devotion_audio.py`: Generates audio for a devotional text, splitting into two voices (introduction and main content).
-- `gen_bread_audio.py`: Generates audio for another devotional text (similar structure).
-- `gen_quite_audio.py`: Generates audio for devotional text using Google's Cloud Text-to-Speech (similar structure).
-- `verse_devotion.py`: Generates audio for verse-focused devotional text (similar structure).
-- `requirements.txt`: Lists Python dependencies.
-- Other files (e.g., `tts.py`, `tts2.py`, `tts_cleaned.py`, `m4a2mp3.py`, `midi.py`, `devotion.txt`) are included for reference but not part of the main workflow.
+### Edge TTS (Default)
+- `gen_devotion_audio_edge.py`: Generates devotional audio (intro + main).
+- `gen_bread_audio_edge.py`: Generates bread devotional audio.
+- `gen_verse_devotion_edge.py`: Generates verse-focused audio.
+- `requirements-edge.txt`: Dependencies for Edge TTS.
 
-## Setup
+### Other Providers
+- **Gemini (Google)**: See [README-gemini.md](README-gemini.md).
+- **Qwen (Alibaba)**: See [README-qwen.md](README-qwen.md).
 
-### Clone the Repository:
+### Shared Utilities
+- `bible_parser.py`: Converts Bible references (e.g., "罗马书 1:17" to "罗马书 1 章 17 節").
+- `date_parser.py`: Parses dates.
+- `text_cleaner.py`: Cleans text.
 
-```
-git clone git@github.com:michaelhuo/devotion_audio_tts.git
-cd devotion_audio_tts
-```
+## Python Environments
 
-### Install Dependencies:
+This project uses `pyenv` for environment management.
 
-```
-pip install -r requirements.txt
-```
+### Edge TTS Environments
+- **Recommended**: `edge-tts-env` (Python 3.12.12)
+  ```bash
+  pyenv activate edge-tts-env
+  pip install -r requirements-edge.txt
+  ```
+- **Previous**: `tts-venv` (Python 3.14.0t) – *Legacy environment used previously.*
 
-### Ensure ffmpeg is installed for pydub:
+### Gemini TTS Environment
+- `gemini-tts-env` (Python 3.12.12)
+  ```bash
+  pyenv activate gemini-tts-env
+  pip install -r requirements-gemini.txt
+  ```
 
-```
-brew install ffmpeg  # On macOS
-```
+### Qwen TTS Environment
+- `qwen-tts-mlx` (Python 3.12.12)
 
-### Set up Google Cloud Credentials:
+## Usage (Edge TTS)
 
-Create a Google Cloud service account with Text-to-Speech API enabled, download the JSON key, and set the environment variable:
+1. **Activate Environment**:
+   ```bash
+   pyenv activate edge-tts-env
+   ```
 
-```
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
-```
+2. **Update Text**:
+   Edit the `TEXT` variable in `gen_devotion_audio_edge.py`, `gen_bread_audio_edge.py`, or `gen_verse_devotion_edge.py`.
 
-### Update Text:
+3. **Run Script**:
+   ```bash
+   python gen_devotion_audio_edge.py
+   ```
 
-Edit the `TEXT` variable in `gen_devotion_audio.py`, `gen_bread_audio.py`, `gen_quite_audio.py`, or `verse_devotion.py` with your devotional content.
+   Output audio will be saved to `~/Downloads/`.
 
-Ensure the text includes Bible references in the format "Book Chapter:Verse" (e.g., "罗马书 1:17").
-
-### Run a Script:
-
-```
-python gen_devotion_audio.py
-```
-
-Output audio will be saved to `/Users/mhuo/Downloads/` (e.g., `devotion_1014.mp3`, `bread_1014.mp3`, `bread_1114.mp3`, `verse_1014.mp3`). Update paths in scripts if needed.
-
-## Usage
-
-Each script (`gen_devotion_audio.py`, `gen_bread_audio.py`, `gen_quite_audio.py`, `verse_devotion.py`):
-
-- Converts Bible references using `bible_parser.convert_bible_reference`.
-- Splits the text into an introduction (first paragraph, read by `FIRST_VOICE`) and main content (remaining paragraphs, read by `SECOND_VOICE`).
-- Generates MP3 audio with a 0.5-second pause between sections.
-- Outputs to `/Users/mhuo/Downloads/` with unique file names to avoid conflicts.
-
-To customize:
-
-- Update `FIRST_VOICE` and `SECOND_VOICE` in each script (see supported voices in the script comments).
-- Modify the `TEXT` variable with your devotional content.
-- Adjust `OUTPUT` and `TEMP_DIR` paths if needed.
-
-## Dependencies
-
-See `requirements.txt` for the full list. Key dependencies:
-
-- `google-cloud-texttospeech`: For text-to-speech conversion (used in Google's solution).
-- `pydub`: For audio processing and concatenation.
-- `edge-tts`: For alternative text-to-speech conversion.
-- `ffmpeg`: Required by pydub for MP3 handling.
-
-## Notes
-
-- Ensure output paths (e.g., `/Users/mhuo/Downloads/`) are writable.
-- Generated audio files (`.mp3`, `.aiff`) are excluded from the repository via `.gitignore`.
-- If scripts are moved to different directories, update the import path for `bible_parser` (e.g., `from ..path.to.bible_parser import convert_bible_reference`).
+## Dependencies (Edge TTS)
+- `edge-tts`: Microsoft Edge TTS API.
+- `pydub`: Audio processing.
+- `ffmpeg`: Required by pydub (`brew install ffmpeg`).
 
 ## License
+MIT License
 
-MIT License (or replace with your preferred license)
-
-# Test push

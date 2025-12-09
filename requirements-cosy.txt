@@ -1,0 +1,17 @@
+# requirements-cosy.txt
+# CosyVoice-300M local offline TTS (best Chinese quality 2025, fully tested on M3 Air)
+
+modelscope>=1.18.0          # Core framework
+funasr>=1.0.0               # Speech frontend
+addict                      # Required by modelscope
+datasets<4.0.0              # Avoid import errors
+torch>=2.0.0                # MPS acceleration
+torchaudio>=2.0.0           # Audio I/O
+pydub>=0.25.1               # Audio concatenation & MP3 export
+numpy>=1.26.0               # Array processing
+Pillow>=10.0.0              # Fixes "No module named 'PIL'"
+PyYAML                      # Config parsing
+tqdm                        # Progress bars
+requests                    # Model download
+simplejson                  # Faster JSON (used by modelscope)
+sortedcontainers           # Fixes current error (required by modelscope jsonplus)

@@ -8,8 +8,9 @@ Uses Google Cloud Text-to-Speech (Gemini voices) for high-quality multi-voice au
 
 ## Setup
 
-1. **Install Dependencies**:
+1. **Environment**:
    ```bash
+   pyenv activate gemini-tts-env
    pip install -r requirements-gemini.txt
    ```
 
