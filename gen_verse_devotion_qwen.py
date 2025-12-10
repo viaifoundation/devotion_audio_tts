@@ -12,7 +12,7 @@ from pydub import AudioSegment
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
 from text_cleaner import remove_space_before_god
-import daily_devotional_filenames_v2
+import filename_parser
 import re
 from datetime import datetime
 
@@ -24,65 +24,95 @@ if not dashscope.api_key:
 
 
 
+
 TEXT = """
-神会持守他的应许。 12/9/2025
+神与你同在 (以赛亚书) 7:14 12/10/2025
 
-　神差他独生子到世间来，使我们藉着他得生，　神爱我们的心在此就显明了。不是我们爱　神，乃是　神爱我们，差他的儿子为我们的罪作了挽回祭，这就是爱了。
-(约翰一书 4:9-10)
-因我们还软弱的时候，基督就按所定的日期为罪人死。为义人死，是少有的；为仁人死，或者有敢做的。惟有基督在我们还作罪人的时候为我们死，　神的爱就在此向我们显明了。
-(罗马书 5:6-8)
+因此，主自己要给你们一个兆头，必有童女怀孕生子，给他起名叫以马内利（就是　神与我们同在的意思）。
+(以赛亚书 7:14)
+约翰又作见证说：“我曾看见圣灵，仿佛鸽子从天降下，住在他的身上。我先前不认识他，只是那差我来用水施洗的、对我说：‘你看见圣灵降下来，住在谁的身上，谁就是用圣灵施洗的。’我看见了，就证明这是　神的儿子。”
+(约翰福音 1:32-34)
+　神所差来的就说　神的话，因为　神赐圣灵给他是没有限量的。父爱子，已将万有交在他手里。信子的人有永生；不信子的人得不着永生，　神的震怒常在他身上。”
+(约翰福音 3:34-36 和合本)
+　神所差来的那一位讲　神的话，因为　神把圣灵无限地赐给他。父爱子，已经把万有交在他手里。信子的，有永生；不信从子的，必不得见永生，　神的震怒却常在他身上。”
+(约翰福音 3:34-36 新译本)
 
-耶和华说：“日子将到，我应许以色列家和犹大家的恩言必然成就。当那日子，那时候，我必使大卫公义的苗裔长起来；他必在地上施行公平和公义。在那日子犹大必得救，耶路撒冷必安然居住，他的名必称为‘耶和华－我们的义’。
-(耶利米书 33:14-16 和合本)
-“看哪！日子快到（这是耶和华的宣告），我必实践我向以色列家和犹大家应许赐福的诺言。
-(耶利米书 33:14 新译本)
-耶和华说：“看啊，时候将到，我要实现我给以色列人和犹大人的美好应许。
-(耶利米书 33:14 当代译本)
 
-神会持守他的应许。
+耶和华又晓谕亚哈斯说：“你向耶和华－你的　神求一个兆头：或求显在深处，或求显在高处。”亚哈斯说：“我不求；我不试探耶和华。”以赛亚说：“大卫家啊，你们当听！你们使人厌烦岂算小事，还要使我的　神厌烦吗？因此，主自己要给你们一个兆头，必有童女怀孕生子，给他起名叫以马内利（就是　神与我们同在的意思）。
+(以赛亚书 7:10-15 和合本)
+因此主自己必给你们一个兆头：看哪！必有童女怀孕生子；她要给他起名叫‘以马内利’。
+(以赛亚书 7:14 新译本)
+因此主要亲自给你们一个征兆：看哪！必有童贞女怀孕，她要生一个儿子，并称他的名为以马内利。
+(以赛亚书 7:14 标准译本)
+所以，主会亲自给你们一个征兆，必有童贞女怀孕生子并给他取名叫以马内利。
+(以赛亚书 7:14 当代译本)
 
-“耶和华说：‘日子将到，我应许以色列家和犹大家的恩言必然成就。’”（耶利米书 33:14）
 
-当耶利米说这些话时，很多人都嘲笑他。为什么？因为当时的局势似乎显示神已经遗弃了以色列和犹大两家。
+神与你同在
 
-在圣经中所记载的这个时代，以色列家已经不复存在——被入侵的敌军消灭了。而犹大家已是孤独无助，另一支庞大的敌军也来侵并准备摧毁他们。情况再也糟糕不过了。
+先知以赛亚在耶稣诞生前近 600 年写下了以赛亚书 7:14 中的预言。在当时，以色列人所做的一切都符合宗教的规则，就是没有按照神的命令去实践公义。像以赛亚时代的许多先知一样，这句话是对这种不公义的警告。但在这警告中却有一线希望，就是神会纠正一切。
 
-你经历过这样的时刻吗？也许是一次改变人生的丧失，或者是难以置信的噩耗。在那些痛苦的时刻，要信靠神的应许令人觉得不可能做到。听耶利米说话的人可能也有同样的感受。但这并不是他们生命的结局，因为处境不能动摇神的应许。
+在这节经文中，先知以赛亚给了以色列人一个盼望的理由，因为神的一个美好应许——他应许将提供一个兆头，并且他将来到我们当中。这正是以马内利的意思：神与我们同在。
 
-是的，敌人入侵，将神的子民囚虏了几十年。但神没有离弃他的子民，也没有违背他的应许。最终，他把以色列百姓从囚虏中解救出来，并带他们回家。
+但对今天的我们来说，“神与我们同在”又意味着什么呢？
 
-同样，神也没有在你痛苦的时候离弃你。你可能觉得根本无法摆脱困境，或者认为你的选择已导致你失去了神的爱。但神必然信守他的应许。
+这意味着通过定睛于耶稣并仰赖他，我们就能得享这种盼望。我们可以相信，从基督诞生到他如今在天上的统治——耶稣就是与我们同在的神。
 
-从流放归来后，神的子民历代都在挣扎。他们继续面对心碎、挫折、入侵和囚虏。但在他们最意想不到的时候，神实现了他的应许。他派他的儿子耶稣带领所有人，包括以色列人和犹大人，走向一个全新且更美好的未来。
+当我们失去挚爱的人时，在我们的悲痛中他与我们同在。
 
-神对更美好未来的应许也适用于你。当我们献上全身心来追求神时，我们就会找到平安、力量和满足。我们能够满怀信心地生活，因为知道终有一天，我们将与耶稣共度永生。我们拥有新生命，并相信神已经实现了他的应许。
+当我们面对不公且无处伸冤时，在我们的愤怒中他与我们同在。
 
-祷告 :
-神啊，
-帮助我对你的美好应许充满信心。你是信实的，而且必不离弃我。所以求你让我远离消极或绝望，并帮助我用我的一生来追随你。
-奉耶稣的名，
-阿们 。
+当我们经历丧失时，在我们的哀伤中他与我们同在。
+
+当我们与他人一起庆祝时，在我们的喜乐中他与我们同在。
+
+当我们向苦难的世界施予怜悯时，在我们的平安中他与我们同在。
+
+还有，当他为我们照亮通往更美好的未来道路时，在我们的盼望中他与我们同在。
+
+他与我们同在。
+
+无论生活此刻将你带到何处——无论是好是坏——耶稣都与你同在，将你引向他。他就是神所应许的以马内利。耶稣就是与我们同在的神。
+
+祷告：
+神啊，感谢你与我同在。我知道你创造了我，并为我制定了美好的计划。请你帮助我看见你在我生命中与我同在。让我想起你在我身边的所有时刻，无论好坏。我今天愿意信靠你，并渴望与你同行。奉耶稣的名，
+阿们。
 """
 
 # Generate filename dynamically
 # 1. Extract Date
-date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", TEXT.split('\n')[0])
+first_line = TEXT.strip().split('\n')[0]
+date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", first_line)
 if date_match:
     m, d, y = date_match.groups()
     date_str = f"{y}-{int(m):02d}-{int(d):02d}"
 else:
-    date_str = datetime.today().strftime("%Y-%m-%d")
+    # Try YYYY-MM-DD
+    date_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", first_line)
+    if date_match:
+        y, m, d = date_match.groups()
+        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
+    else:
+        date_str = datetime.today().strftime("%Y-%m-%d")
 
-# 2. Extract Verse (First parenthesis content)
-verse_match = re.search(r"\((.*?)\)", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
+# 2. Extract Verse
+# Try matching (Book) Chapter:Verse first (e.g. "(以赛亚书) 7:14")
+verse_match = re.search(r"\((.*?)\)\s*(\d+[:：]\d+(?:[-\d+]*))", TEXT)
+if verse_match:
+    book = verse_match.group(1).strip()
+    ref = verse_match.group(2).strip()
+    verse_ref = f"{book} {ref}"
+else:
+    # Fallback to standard (Book Chapter:Verse)
+    verse_match = re.search(r"\((.*?)\)", TEXT)
+    verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
 
-filename = daily_devotional_filenames_v2.generate_filename(verse_ref, date_str)
+filename = filename_parser.generate_filename(verse_ref, date_str)
 OUTPUT_PATH = f"/Users/mhuo/Downloads/{filename}"
 print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
-TEXT = convert_dates_in_text(TEXT)
+tEXT = convert_dates_in_text(TEXT)
 TEXT = remove_space_before_god(TEXT)
 
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]

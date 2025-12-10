@@ -9,7 +9,7 @@ from pydub import AudioSegment
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
 from text_cleaner import remove_space_before_god
-import daily_devotional_filenames_v2
+import filename_parser
 import re
 from datetime import datetime
 
@@ -69,18 +69,25 @@ TEXT = """
 
 # Generate filename dynamically
 # 1. Extract Date
-date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", TEXT.split('\n')[0])
+first_line = TEXT.strip().split('\n')[0]
+date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", first_line)
 if date_match:
     m, d, y = date_match.groups()
     date_str = f"{y}-{int(m):02d}-{int(d):02d}"
 else:
-    date_str = datetime.today().strftime("%Y-%m-%d")
+    # Try YYYY-MM-DD
+    date_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", first_line)
+    if date_match:
+        y, m, d = date_match.groups()
+        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
+    else:
+        date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse (First parenthesis content)
 verse_match = re.search(r"\((.*?)\)", TEXT)
 verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
 
-filename = daily_devotional_filenames_v2.generate_filename(verse_ref, date_str)
+filename = filename_parser.generate_filename(verse_ref, date_str)
 OUTPUT_PATH = f"/Users/mhuo/Downloads/{filename}"
 print(f"Target Output: {OUTPUT_PATH}")
 

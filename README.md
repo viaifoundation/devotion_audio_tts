@@ -54,7 +54,7 @@ The audio will be generated in your `~/Downloads` folder with a filename like:
 
 ## Project Utilities
 
-- `daily_devotional_filenames_v2.py`: Handles dynamic parsing of dates and verses to generate consistent filenames.
+- `filename_parser.py`: Handles dynamic parsing of dates and verses to generate consistent filenames.
 - `bible_parser.py`: Normalizes Chinese Bible references for better TTS pronunciation (e.g., "3:16" -> "3章16节").
 - `text_cleaner.py`: Formats text, adding ensuring spacing around "God" (神).
 

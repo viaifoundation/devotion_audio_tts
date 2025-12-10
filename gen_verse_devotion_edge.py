@@ -6,57 +6,87 @@ import os
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
 from text_cleaner import remove_space_before_god
-import daily_devotional_filenames_v2
+import filename_parser
 import re
 from datetime import datetime
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
-你的内心是什么样？ 12/8/2025
+神与你同在 12/10/2025 (以赛亚书 7:14)
+
+因此，主自己要给你们一个兆头，必有童女怀孕生子，给他起名叫以马内利（就是　神与我们同在的意思）。
+(以赛亚书 7:14)
+约翰又作见证说：“我曾看见圣灵，仿佛鸽子从天降下，住在他的身上。我先前不认识他，只是那差我来用水施洗的、对我说：‘你看见圣灵降下来，住在谁的身上，谁就是用圣灵施洗的。’我看见了，就证明这是　神的儿子。”
+(约翰福音 1:32-34)
+　神所差来的就说　神的话，因为　神赐圣灵给他是没有限量的。父爱子，已将万有交在他手里。信子的人有永生；不信子的人得不着永生，　神的震怒常在他身上。”
+(约翰福音 3:34-36 和合本)
+　神所差来的那一位讲　神的话，因为　神把圣灵无限地赐给他。父爱子，已经把万有交在他手里。信子的，有永生；不信从子的，必不得见永生，　神的震怒却常在他身上。”
+(约翰福音 3:34-36 新译本)
 
 
-“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。因为　神差他的儿子降世，不是要定世人的罪，乃是要叫世人因他得救。信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。
-(约翰福音 3:16-18)
-凡认耶稣为　神儿子的，　神就住在他里面，他也住在　神里面。　神爱我们的心，我们也知道也信。
-　神就是爱；住在爱里面的，就是住在　神里面，　神也住在他里面。
-(约翰一书 4:15-16)
-我赐给你们一条新命令，乃是叫你们彼此相爱；我怎样爱你们，你们也要怎样相爱。你们若有彼此相爱的心，众人因此就认出你们是我的门徒了。”
-(约翰福音 13:34-35)
+耶和华又晓谕亚哈斯说：“你向耶和华－你的　神求一个兆头：或求显在深处，或求显在高处。”亚哈斯说：“我不求；我不试探耶和华。”以赛亚说：“大卫家啊，你们当听！你们使人厌烦岂算小事，还要使我的　神厌烦吗？因此，主自己要给你们一个兆头，必有童女怀孕生子，给他起名叫以马内利（就是　神与我们同在的意思）。
+(以赛亚书 7:10-15 和合本)
+因此主自己必给你们一个兆头：看哪！必有童女怀孕生子；她要给他起名叫‘以马内利’。
+(以赛亚书 7:14 新译本)
+因此主要亲自给你们一个征兆：看哪！必有童贞女怀孕，她要生一个儿子，并称他的名为以马内利。
+(以赛亚书 7:14 标准译本)
+所以，主会亲自给你们一个征兆，必有童贞女怀孕生子并给他取名叫以马内利。
+(以赛亚书 7:14 当代译本)
 
-你要保守你心，胜过保守一切，
-因为一生的果效是由心发出。
-(箴言 4:23 和合本)
-你要谨守你的心，胜过谨守一切，
-因为生命的泉源由此而出。
-(箴言 4:23 新译本)
-当谨守你的心，胜过保守一切，
-因为生命的泉源由心而出。
-(箴言 4:23 标准译本)
-要一丝不苟地守护你的心，
-因为生命之泉从心中涌出。
-(箴言 4:23 当代译本)
 
-你的内心是什么样？
+神与你同在
 
-你可曾在做了一个糟糕的决定后自忖：“我怎么会做出那样的事？”
+先知以赛亚在耶稣诞生前近 600 年写下了以赛亚书 7:14 中的预言。在当时，以色列人所做的一切都符合宗教的规则，就是没有按照神的命令去实践公义。像以赛亚时代的许多先知一样，这句话是对这种不公义的警告。但在这警告中却有一线希望，就是神会纠正一切。
 
-在旧约圣经中，人们视心为内在生命的内核，并相信它主导着思想、情绪和行为。心就是一个人的灵魂与心思意念的结合。
+在这节经文中，先知以赛亚给了以色列人一个盼望的理由，因为神的一个美好应许——他应许将提供一个兆头，并且他将来到我们当中。这正是以马内利的意思：神与我们同在。
 
-箴言4:23告诫我们“要保守你心”，这实际上是在说“要留心你用什么来填满你的内在生命。”
+但对今天的我们来说，“神与我们同在”又意味着什么呢？
 
-你口里会说出什么，取决于你容许入侵你心灵的是什么。而你所说的话将进而影响你的行为和决定。或许今天你还没感受到你的选择所带来的影响，但是随着时间的推移，这些决定终将影响到你的人生方向。 
+这意味着通过定睛于耶稣并仰赖他，我们就能得享这种盼望。我们可以相信，从基督诞生到他如今在天上的统治——耶稣就是与我们同在的神。
 
-那我们该如何刻意维护我们的内在生命呢？
+当我们失去挚爱的人时，在我们的悲痛中他与我们同在。
 
-我们的身体既然是神所造的，即意味着它最需要的是神。他就是维护我们的那一位。因此，我们所能为自己做到的最有益处的事，就是通过祷告、查经、思考神的祝福来刻意寻求神，同时邀请圣灵在我们每天的作息中对不停对我们说话。 
+当我们面对不公且无处伸冤时，在我们的愤怒中他与我们同在。
 
-保守我们的心的最好方式就是把心交托给神。当我们让神成为我们生活的中心、力量的源泉时，我们所做的事也将出于他的意愿。
+当我们经历丧失时，在我们的哀伤中他与我们同在。
 
-所以，不要在我们的日程表中给神作安排，而是要让我们的日常作息围绕着与神的关系来展开。让我们创造空间给神对我们说话，使我们重新得力。让神来医治我们生命中破碎的部分，这样我们口里说出来的话就会是良善的、鼓励人的，并能通往那丰盛且充满喜乐的生命。
+当我们与他人一起庆祝时，在我们的喜乐中他与我们同在。
 
-祷告
-主耶稣，感谢你无条件地爱着我。感谢你来到世上拯救我们。我想以你爱我的方式来爱你。我知道这并不容易，我也知道这将使我付出一些代价，但我要你在我的生命中占据首要的位置。因此，请告诉我如何保守我的心，也教我如何变得更像你。
+当我们向苦难的世界施予怜悯时，在我们的平安中他与我们同在。
+
+还有，当他为我们照亮通往更美好的未来道路时，在我们的盼望中他与我们同在。
+
+他与我们同在。
+
+无论生活此刻将你带到何处——无论是好是坏——耶稣都与你同在，将你引向他。他就是神所应许的以马内利。耶稣就是与我们同在的神。
+
+祷告：
+神啊，感谢你与我同在。我知道你创造了我，并为我制定了美好的计划。请你帮助我看见你在我生命中与我同在。让我想起你在我身边的所有时刻，无论好坏。我今天愿意信靠你，并渴望与你同行。奉耶稣的名，
 阿们。
 """
+# Generate filename dynamically
+# 1. Extract Date
+first_line = TEXT.strip().split('\n')[0]
+date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", first_line)
+if date_match:
+    m, d, y = date_match.groups()
+    date_str = f"{y}-{int(m):02d}-{int(d):02d}"
+else:
+    # Try YYYY-MM-DD
+    date_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", first_line)
+    if date_match:
+        y, m, d = date_match.groups()
+        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
+    else:
+        date_str = datetime.today().strftime("%Y-%m-%d")
+
+# 2. Extract Verse (First parenthesis content)
+verse_match = re.search(r"\((.*?)\)", TEXT)
+verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
+
+filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_edge.mp3")
+OUTPUT = f"/Users/mhuo/Downloads/{filename}"
+print(f"Target Output: {OUTPUT}")
+
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
@@ -92,27 +122,13 @@ THIRD_VOICE = "zh-CN-YunyangNeural" # Third voice (third paragraph)
 FOURTH_VOICE = "zh-CN-XiaoxiaoNeural" # Fourth voice (paragraphs between 3rd and last)
 FIFTH_VOICE = "zh-CN-YunxiaNeural" # Fifth voice (last paragraph)
 #THIRD_VOICE = "zh-CN-XiaoxiaoNeural" # Second voice (second paragraph)
-# Generate filename dynamically
-# 1. Extract Date
-date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", TEXT.split('\n')[0])
-if date_match:
-    m, d, y = date_match.groups()
-    date_str = f"{y}-{int(m):02d}-{int(d):02d}"
-else:
-    date_str = datetime.today().strftime("%Y-%m-%d")
 
-# 2. Extract Verse (First parenthesis content)
-verse_match = re.search(r"\((.*?)\)", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
-
-filename = daily_devotional_filenames_v2.generate_filename(verse_ref, date_str).replace(".mp3", "_edge.mp3")
-OUTPUT = f"/Users/mhuo/Downloads/{filename}"
-print(f"Target Output: {OUTPUT}")
 TEMP_DIR = "/Users/mhuo/Downloads/" # For temp files
 TEMP_FIRST = "/Users/mhuo/Downloads/temp_first_verse.mp3"
 TEMP_SECOND = "/Users/mhuo/Downloads/temp_second_verse.mp3"
 TEMP_THIRD = "/Users/mhuo/Downloads/temp_third_verse.mp3"
 async def generate_audio(text, voice, output_file):
+    print(f"DEBUG: Generating audio for text: '{text[:50]}...' (len={len(text)})")
     communicate = edge_tts.Communicate(text=text, voice=voice)
     await communicate.save(output_file)
 async def main():
