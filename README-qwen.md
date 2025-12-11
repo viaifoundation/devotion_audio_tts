@@ -14,7 +14,7 @@ pip install -r requirements-qwen.txt
 
 ## Daily use
 ```
-source ~/.pyenv/versions/3.12.12/envs/qwen-tts-mlx/bin/activate
+source ~/.pyenv/versions/3.12.12/envs/qwen-tts-env/bin/activate
 python gen_bread_audio_qwen.py        # ~1.5 seconds
 python gen_verse_devotion_qwen.py     # ~2 seconds
 ```
