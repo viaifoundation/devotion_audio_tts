@@ -20,6 +20,76 @@ It supports automatic filename generation based on the Bible verse and date foun
 | **Alibaba Qwen** | `gen_*_qwen.py` | Concise, Neural | `DASHSCOPE_API_KEY` env var |
 | **CosyVoice** | `gen_*_cosy.py` | Offline/Local capable (300M model) | `torch`, `modelscope` |
 
+## Environment Setup (Recommended)
+
+It is highly recommended to use `pyenv` to manage Python versions and virtual environments to avoid conflicts.
+
+### 1. Prerequisites (Install Pyenv & FFmpeg)
+
+**macOS** (via Homebrew):
+```bash
+brew update
+brew install pyenv pyenv-virtualenv ffmpeg
+```
+*After installation, follow the instructions printed in your terminal to add pyenv to your shell profile (e.g., `~/.zshrc` or `~/.bash_profile`).*
+
+**Linux** (Ubuntu/Debian example):
+```bash
+# Install build dependencies
+sudo apt-get update; sudo apt-get install make build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev ffmpeg
+
+# Install pyenv
+curl https://pyenv.run | bash
+```
+*Follow the on-screen instructions to add pyenv to your shell configuration.*
+
+### 2. Step-by-Step Guide
+
+Refer to the commands below to set up the environment for this project (using Python 3.12.12).
+
+```bash
+# 1. Install Python 3.12.12 (this exact patch version)
+pyenv install 3.12.12
+
+# 2. Create a virtual environment named "tts-qwen-env" using Python 3.12.12
+pyenv virtualenv 3.12.12 tts-qwen-env
+
+# 3. Activate the virtual environment
+pyenv activate tts-qwen-env
+
+# (You’ll see the prompt change to something like: (tts-qwen-env) % )
+
+# 4. When you’re done working, deactivate it
+pyenv deactivate
+```
+
+### 3. Helpful Commands
+
+```bash
+# Optional but recommended: set the virtualenv to be automatically activated
+# when you cd into your project directory (e.g. ~/projects/tts-qwen)
+# Create/set local version for the project folder:
+cd ~/path/to/your/project
+pyenv local tts-qwen-env
+# Now every time you cd into this folder, it will auto-activate
+
+# List all pyenv-managed Python versions
+pyenv versions
+
+# List all virtual environments
+pyenv virtualenvs
+
+# Delete the virtualenv if you ever need to (be careful!)
+pyenv uninstall tts-qwen-env
+
+# Check which Python/pip you’re currently using (should point inside the venv when activated)
+which python
+which pip
+python --version
+```
+
 ## Quick Start
 
 ### 1. Installation
