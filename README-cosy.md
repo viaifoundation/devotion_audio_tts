@@ -1,0 +1,116 @@
+# Devotion Audio TTS – CosyVoice Edition (Local Offline)
+
+**Developed by:** FunAudioLLM Team (SpeechLab@Tongyi, Alibaba Group).
+It is a state-of-the-art offline Chinese TTS model comparable to GPT-4o voice capabilities.
+
+Uses Alibaba's **CosyVoice-300M** (Instruct) model.
+These scripts run **locally** on your machine.
+
+## Key Features
+- **Offline**: No internet required after initial model download.
+- **High Quality**: Neural quality comparable to ElevenLabs/OpenAI.
+- **Instructable**: Supports various voice timbres.
+
+## Files
+- `gen_bread_audio_cosy.py`: Daily Bread (2 voices)
+- `gen_verse_devotion_cosy.py`: Verse + Devotion + Prayer (Multi-voice)
+- `requirements-cosy.txt`: Dependencies
+
+## Setup
+
+### 1. Prerequisites
+- **Python 3.10+** (Recommended: 3.12)
+- **Disk Space**: ~5GB for model weights.
+- **Hardware**:
+    - **Mac**: M-series (MPS) recommended (Verified on MacBook Pro M5).
+    - **Linux**: NVIDIA GPU (CUDA 11.8+) recommended.
+
+### 2. Environment & Installation
+
+#### A. Directory Structure
+Since `CosyVoice` is not a pip package, you must clone it as a "sibling" repository.
+```
+~/github/
+  ├── devotion_audio_tts/  (This repo)
+  └── CosyVoice/           (Clone this)
+```
+
+#### B. Installation Steps
+
+**Step 1: Clone CosyVoice (Recursive)**
+```bash
+cd ~/github
+git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
+# If you already cloned it without --recursive:
+# cd CosyVoice && git submodule update --init --recursive
+```
+
+**Step 2: Install Dependencies**
+
+**macOS:**
+```bash
+cd ~/github/devotion_audio_tts
+
+# Create/Activate environment
+pyenv virtualenv 3.12.12 tts-cosy-env
+pyenv activate tts-cosy-env
+
+# Install requirement for this project + CosyVoice dependencies
+pip install -r requirements-cosy.txt
+pip install -r ../CosyVoice/requirements.txt
+```
+
+**Linux (System76 Pop!_OS / Ubuntu with NVIDIA):**
+Ensure you have NVIDIA drivers and CUDA toolkit installed.
+```bash
+# 1. System Dependencies (Pop!_OS/Ubuntu)
+sudo apt-get update && sudo apt-get install -y git ffmpeg build-essential
+
+# 2. Python Environment
+pyenv virtualenv 3.12.12 tts-cosy-env
+pyenv activate tts-cosy-env
+
+# 3. Install Torch with CUDA support (Important for speed)
+# Check https://pytorch.org/get-started/locally/ for your CUDA version
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# 4. Install Project Requirements
+cd ~/github/devotion_audio_tts
+pip install -r requirements-cosy.txt
+pip install -r ../CosyVoice/requirements.txt
+```
+*Note: For NVIDIA NGX/Spark workflows, ensure your container/environment maps the GPU correctly (`--gpus all`).*
+
+### 3. Troubleshooting Installation
+
+**If you see `Failed to build grpcio` errors:**
+The pinned version of grpcio in CosyVoice is too old for Python 3.12 on Mac. Run this to unpin it and allow a newer version:
+
+```bash
+# Modify CosyVoice requirements to allow newer grpcio
+sed -i '' 's/grpcio==1.57.0/grpcio/g' ../CosyVoice/requirements.txt
+sed -i '' 's/grpcio-tools==1.57.0/grpcio-tools/g' ../CosyVoice/requirements.txt
+
+# Try installing again
+pip install -r ../CosyVoice/requirements.txt
+```
+
+**Note**: If `requirements.txt` in CosyVoice fails on some specific versions, focus on installing `torch`, `torchaudio`, `modelscope`, `hyperpyyaml`, `onnxruntime` manually.
+
+## Usage
+
+Run the scripts:
+```bash
+python gen_verse_devotion_cosy.py
+# or
+python gen_bread_audio_cosy.py
+```
+
+*First run will download the model automatically via ModelScope.*
+
+## Voices
+Scripts use built-in SFT speaker names:
+- `中文女` (Chinese Female)
+- `中文男` (Chinese Male)
+- `英文女` (English Female)
+- `英文男` (English Male)

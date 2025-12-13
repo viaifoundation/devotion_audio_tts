@@ -1,70 +1,99 @@
-# gen_verse_devotion_cosyvoice.py
+# gen_verse_devotion_cosy.py
 # Local offline CosyVoice-300M – 5 voices for verse devotion
 
 import torch
-from modelscope.pipelines import pipeline
-from modelscope.utils.constant import Tasks
+import numpy as np
+import re
+import sys
+import os
+from datetime import datetime
 from pydub import AudioSegment
+
+# Setup path to find CosyVoice (sibling directory)
+# and its third_party dependencies (Matcha-TTS)
+COSYVOICE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../CosyVoice"))
+MATCHA_PATH = os.path.join(COSYVOICE_PATH, "third_party", "Matcha-TTS")
+
+if os.path.exists(COSYVOICE_PATH):
+    sys.path.append(COSYVOICE_PATH)
+    # Also add Matcha-TTS to path as CosyVoice imports 'matcha' directly
+    if os.path.exists(MATCHA_PATH):
+        sys.path.append(MATCHA_PATH)
+    else:
+        print(f"⚠️ Warning: Matcha-TTS not found at {MATCHA_PATH}")
+        print("Run: cd ../CosyVoice && git submodule update --init --recursive")
+else:
+    print(f"⚠️ Warning: CosyVoice path not found at {COSYVOICE_PATH}")
+    print("Please clone it: git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git ../CosyVoice")
+
+try:
+    from cosyvoice.cli.cosyvoice import CosyVoice
+    from cosyvoice.utils.file_utils import load_wav
+except ImportError as e:
+    print(f"❌ Failed to import CosyVoice: {e}")
+    print(f"Ensure you have cloned the repo to {COSYVOICE_PATH} and installed its requirements.")
+    sys.exit(1)
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
 from text_cleaner import remove_space_before_god
 import filename_parser
-import re
-from datetime import datetime
 
-pipe = pipeline(task=Tasks.text_to_speech, model='iic/CosyVoice-300M-Instruct')
-device = "mps" if torch.backends.mps.is_available() else "cpu"
-pipe.model.to(device)
-
-
+print("Loading CosyVoice-300M-Instruct (local offline)...")
+# CosyVoice automatically handles model download via modelscope if not present
+try:
+    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct')
+except Exception as e:
+    print(f"❌ Error loading model: {e}")
+    print("Ensure you have 'modelscope' installed and dependencies met.")
+    sys.exit(1)
 
 TEXT = """
-你的内心是什么样？ 12/8/2025
+我们的好牧人 (约翰福音 10:10) 2025-12-12
 
+所以，你要知道耶和华－你的　神，他是　神，是信实的　神；向爱他、守他诫命的人守约，施慈爱，直到千代；
+(申命记 7:9)
+古时（或译：从远方）耶和华向以色列（原文是我）显现，说：
+我以永远的爱爱你，
+因此我以慈爱吸引你。
+(耶利米书 31:3 和合本)
+耶和华在古时（“在古时”或译：“从远处”）曾向以色列（按照《马索拉文本》，“以色列”应作“我”；现参照《七十士译本》翻译）显现，说：
+“我以永远的爱爱你，
+因此，我对你的慈爱延续不息（“我对你的慈爱延续不息”或译：“我要以慈爱吸引你”）。
+(耶利米书 31:3 新译本)
+从前，耶和华向以色列显现，说：
+“我以永远的爱爱你，
+我以不变的慈爱吸引你。
+(耶利米书 31:3 当代译本)
+你不要害怕，因为我与你同在；
+不要惊惶，因为我是你的　神。
+我必坚固你，我必帮助你；
+我必用我公义的右手扶持你。
+(以赛亚书 41:10)
 
-“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。因为　神差他的儿子降世，不是要定世人的罪，乃是要叫世人因他得救。信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。
-(约翰福音 3:16-18)
-凡认耶稣为　神儿子的，　神就住在他里面，他也住在　神里面。　神爱我们的心，我们也知道也信。
-　神就是爱；住在爱里面的，就是住在　神里面，　神也住在他里面。
-(约翰一书 4:15-16)
-我赐给你们一条新命令，乃是叫你们彼此相爱；我怎样爱你们，你们也要怎样相爱。你们若有彼此相爱的心，众人因此就认出你们是我的门徒了。”
-(约翰福音 13:34-35)
+所以，耶稣又对他们说：“我实实在在地告诉你们，我就是羊的门。凡在我以先来的都是贼，是强盗；羊却不听他们。我就是门；凡从我进来的，必然得救，并且出入得草吃。盗贼来，无非要偷窃，杀害，毁坏；我来了，是要叫羊（或译：人）得生命，并且得的更丰盛。我是好牧人；好牧人为羊舍命。
+(约翰福音 10:7-11 和合本)
+盗贼来，无非要偷窃，杀害，毁坏；我来了，是要叫羊（或译：人）得生命，并且得的更丰盛。
+(约翰福音 10:10 和合本)
+贼来了，不过是要偷窃、杀害、毁坏；我来了，是要使羊得生命，并且得的更丰盛。
+(约翰福音 10:10 新译本)
 
-你要保守你心，胜过保守一切，
-因为一生的果效是由心发出。
-(箴言 4:23 和合本)
-你要谨守你的心，胜过谨守一切，
-因为生命的泉源由此而出。
-(箴言 4:23 新译本)
-当谨守你的心，胜过保守一切，
-因为生命的泉源由心而出。
-(箴言 4:23 标准译本)
-要一丝不苟地守护你的心，
-因为生命之泉从心中涌出。
-(箴言 4:23 当代译本)
+我们的好牧人
 
-你的内心是什么样？
+耶稣多次使用的“我是”是一个很有力的声明，让我们一瞥耶稣的本性和他在世上的使命。首先，它展现了耶稣在世上执行使命的目的与姿态。其次，它将耶稣与父神联系起来；耶稣的“我是”表明了他的神性，与出埃及记 3:14 中神向摩西启示自己为“我是”的宣言息息相关。
 
-你可曾在做了一个糟糕的决定后自忖：“我怎么会做出那样的事？”
+在约翰福音第10章中，耶稣告诉人们他是好牧人。好牧人的标志是他必须愿意为他的羊舍命。耶稣说他愿意那样做。
 
-在旧约圣经中，人们视心为内在生命的内核，并相信它主导着思想、情绪和行为。心就是一个人的灵魂与心思意念的结合。
+耶稣的话与他那个时代的宗教领袖形成鲜明的对比。那些宗教领袖常常刁难神的追随者。他们添加律法和条规，导致人们更远离神。归根结底，他们是自私的领袖，认为自己比他们所领导的人更重要。
 
-箴言4:23告诫我们“要保守你心”，这实际上是在说“要留心你用什么来填满你的内在生命。”
+耶稣指出，做好牧人的最重要条件是为羊舍命。耶稣就是那位至高的牧羊人，因为他真正关心神的子民。他就像诗篇23篇中的牧羊人，把羊群领到可安歇的水边，使他们的灵魂苏醒。
 
-你口里会说出什么，取决于你容许入侵你心灵的是什么。而你所说的话将进而影响你的行为和决定。或许今天你还没感受到你的选择所带来的影响，但是随着时间的推移，这些决定终将影响到你的人生方向。 
+你有没有想过耶稣是你个人灵魂的牧人？耶稣切望在生活中与你同行、照顾你的需求，并保守你的心。他一心要爱你并引导你做对你有益的事情。 
 
-那我们该如何刻意维护我们的内在生命呢？
+他不是一个想让你的生活变得沉重或困难的引领者。相反，他希望你活在自由和恩典中。花点时间来思想耶稣是你的好牧人的含义，并感谢他的爱和恩典。
 
-我们的身体既然是神所造的，即意味着它最需要的是神。他就是维护我们的那一位。因此，我们所能为自己做到的最有益处的事，就是通过祷告、查经、思考神的祝福来刻意寻求神，同时邀请圣灵在我们每天的作息中对不停对我们说话。 
-
-保守我们的心的最好方式就是把心交托给神。当我们让神成为我们生活的中心、力量的源泉时，我们所做的事也将出于他的意愿。
-
-所以，不要在我们的日程表中给神作安排，而是要让我们的日常作息围绕着与神的关系来展开。让我们创造空间给神对我们说话，使我们重新得力。让神来医治我们生命中破碎的部分，这样我们口里说出来的话就会是良善的、鼓励人的，并能通往那丰盛且充满喜乐的生命。
-
-祷告
-主耶稣，感谢你无条件地爱着我。感谢你来到世上拯救我们。我想以你爱我的方式来爱你。我知道这并不容易，我也知道这将使我付出一些代价，但我要你在我的生命中占据首要的位置。因此，请告诉我如何保守我的心，也教我如何变得更像你。
-阿们。
+祷告：
+神啊，感谢你做我的好牧人。即使在我怀疑你的良善的时候，你仍无私地寻求我。你一次又一次地使我焦虑的心平静下来。感谢你背负我的重担。我知道你眷顾我，并且总是为我的益处着想。奉耶稣的名，阿们。
 """
 
 # Generate filename dynamically
@@ -87,7 +116,7 @@ else:
 verse_match = re.search(r"\((.*?)\)", TEXT)
 verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
 
-filename = filename_parser.generate_filename(verse_ref, date_str)
+filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_cosy.mp3")
 OUTPUT_PATH = f"/Users/mhuo/Downloads/{filename}"
 print(f"Target Output: {OUTPUT_PATH}")
 
@@ -97,27 +126,38 @@ TEXT = remove_space_before_god(TEXT)
 
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
 
-# Built-in CosyVoice voices (you can change)
-voices = ["female_chinese", "male_chinese", "female_english", "female_chinese", "male_chinese"]
+# Built-in CosyVoice voices
+# NOTE: CosyVoice SFT inference uses specific speaker names.
+# Common ones: "中文女", "中文男", "日语男", "粤语女", "英文女", "英文男", "韩语女"
+voices = ["中文女", "中文男", "英文女", "中文女", "中文男"]
 
 def speak(text: str, voice: str) -> AudioSegment:
-    output = pipe(text, voice=voice)
-    audio_np = output["audio"]
-    audio_int16 = (audio_np * 32767).astype(np.int16)
-    return AudioSegment(
-        audio_int16.tobytes(),
-        frame_rate=22050,
-        sample_width=2,
-        channels=1
-    )
+    # inference_sft returns a result iterable usually, or creates a generator
+    # output format: {'tts_speech': tensor, 'samplerate': 22050}
+    # It might return a generator, so we iterate
+    
+    print(f"   Synthesizing ({len(text)} chars) with {voice}...")
+    output_gen = cosyvoice.inference_sft(text, voice)
+    
+    final_audio = AudioSegment.empty()
+    
+    # Iterate through the generator
+    for item in output_gen:
+        if 'tts_speech' in item:
+            audio_np = item['tts_speech'].numpy()
+            # Normalize float -1..1 to int16
+            audio_int16 = (audio_np * 32767).astype(np.int16)
+            segment = AudioSegment(
+                audio_int16.tobytes(),
+                frame_rate=22050, 
+                sample_width=2,
+                channels=1
+            )
+            final_audio += segment
+            
+    return final_audio
 
 # Group paragraphs into 5 logical sections
-# 1. Intro (Title/Date)
-# 2. Scripture 1
-# 3. Scripture 2
-# 4. Main Body (Middle paragraphs)
-# 5. Prayer (Last paragraph)
-
 if len(paragraphs) < 5:
     logical_sections = [[p] for p in paragraphs]
 else:
@@ -140,11 +180,11 @@ for i, section_paras in enumerate(logical_sections):
     print(f"--- Section {i+1}: {title} ---")
     
     section_audio = AudioSegment.empty()
-    silence_between_paras = AudioSegment.silent(duration=700, frame_rate=24000)
+    silence_between_paras = AudioSegment.silent(duration=700, frame_rate=22050)
 
     for j, para in enumerate(section_paras):
         voice = voices[global_p_index % len(voices)]
-        print(f"  > Part {i+1}.{j+1} - {voice} ({len(para)} chars)")
+        print(f"  > Part {i+1}.{j+1} - {voice}")
         global_p_index += 1
         current_segment = speak(para, voice)
         section_audio += current_segment
@@ -155,13 +195,14 @@ for i, section_paras in enumerate(logical_sections):
     final_segments.append(section_audio)
 
 final = AudioSegment.empty()
-silence_between_sections = AudioSegment.silent(duration=1000, frame_rate=24000)
+silence_between_sections = AudioSegment.silent(duration=1000, frame_rate=22050)
 
 for i, seg in enumerate(final_segments):
     final += seg
     if i < len(final_segments) - 1:
         final += silence_between_sections
 
+# Convert to 24k for consistency with others if desired, or keep 22k
 final = final.set_frame_rate(24000)
 final.export(OUTPUT_PATH, format="mp3", bitrate="192k")
 print(f"Success! Saved → {OUTPUT_PATH}")

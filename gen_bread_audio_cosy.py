@@ -1,17 +1,48 @@
 # gen_bread_audio_cosy.py
-# Local offline CosyVoice-300M-Instruct (best Chinese TTS 2025, M3 Air optimized)
+# Local offline CosyVoice-300M-Instruct (via CosyVoice repo)
 
 import torch
-from cosyvoice.cli.cosyvoice import CosyVoice
-from cosyvoice.utils.file_utils import load_wav
+import numpy as np
+import sys
+import os
 from pydub import AudioSegment
+
+# Setup path to find CosyVoice (sibling directory)
+# and its third_party dependencies (Matcha-TTS)
+COSYVOICE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../CosyVoice"))
+MATCHA_PATH = os.path.join(COSYVOICE_PATH, "third_party", "Matcha-TTS")
+
+if os.path.exists(COSYVOICE_PATH):
+    sys.path.append(COSYVOICE_PATH)
+    # Also add Matcha-TTS to path as CosyVoice imports 'matcha' directly
+    if os.path.exists(MATCHA_PATH):
+        sys.path.append(MATCHA_PATH)
+    else:
+        print(f"⚠️ Warning: Matcha-TTS not found at {MATCHA_PATH}")
+        print("Run: cd ../CosyVoice && git submodule update --init --recursive")
+else:
+    print(f"⚠️ Warning: CosyVoice path not found at {COSYVOICE_PATH}")
+    print("Please clone it: git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git ../CosyVoice")
+
+try:
+    from cosyvoice.cli.cosyvoice import CosyVoice
+    from cosyvoice.utils.file_utils import load_wav
+except ImportError as e:
+    print(f"❌ Failed to import CosyVoice: {e}")
+    print(f"Ensure you have cloned the repo to {COSYVOICE_PATH} and installed its requirements.")
+    sys.exit(1)
 
 from bible_parser import convert_bible_reference
 from text_cleaner import remove_space_before_god
 
 # Load model (uses cached files – no download)
 print("Loading CosyVoice-300M-Instruct (local offline)...")
-cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct')
+try:
+    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct')
+except Exception as e:
+    print(f"❌ Error loading model: {e}")
+    print("Ensure you have 'modelscope' installed and dependencies met.")
+    sys.exit(1)
 
 OUTPUT_PATH = "/Users/mhuo/Downloads/bread_cosy.mp3"
 
@@ -33,20 +64,27 @@ TEXT = convert_bible_reference(TEXT)
 TEXT = remove_space_before_god(TEXT)
 
 paragraphs = [p.strip() for p in TEXT.strip().split("\n") if p.strip()]
-intro = paragraphs[0]
-main = "\n".join(paragraphs[1:])
+intro = paragraphs[0] if paragraphs else ""
+main = "\n".join(paragraphs[1:]) if len(paragraphs) > 1 else ""
 
 def speak(text: str, voice: str = "中文女") -> AudioSegment:
-    # CosyVoice built-in voices: "中文女", "中文男", "英文女", "英文男", "粤语女", "四川话女" etc.
-    output = cosyvoice.inference_sft(text, voice)
-    audio_np = output['tts_speech'].numpy()
-    audio_int16 = (audio_np * 32767).astype(np.int16)
-    return AudioSegment(
-        audio_int16.tobytes(),
-        frame_rate=22050,
-        sample_width=2,
-        channels=1
-    )
+    print(f"   Synthesizing ({len(text)} chars) with {voice}...")
+    output_gen = cosyvoice.inference_sft(text, voice)
+    
+    final_audio = AudioSegment.empty()
+    # Iterate through the generator
+    for item in output_gen:
+        if 'tts_speech' in item:
+            audio_np = item['tts_speech'].numpy()
+            audio_int16 = (audio_np * 32767).astype(np.int16)
+            segment = AudioSegment(
+                audio_int16.tobytes(),
+                frame_rate=22050, 
+                sample_width=2,
+                channels=1
+            )
+            final_audio += segment
+    return final_audio
 
 print("Generating introduction (中文女)…")
 seg_intro = speak(intro, "中文女")

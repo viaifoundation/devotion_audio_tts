@@ -1,5 +1,5 @@
 # requirements-cosy.txt
-# CosyVoice-300M local offline TTS (best Chinese quality 2025, fully tested on M3 Air)
+# CosyVoice-300M local offline TTS (best Chinese quality 2025, fully tested on MacBook Pro M5)
 
 modelscope>=1.18.0          # Core framework
 funasr>=1.0.0               # Speech frontend
