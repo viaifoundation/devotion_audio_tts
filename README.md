@@ -18,7 +18,9 @@ It supports automatic filename generation based on the Bible verse and date foun
 | **Edge TTS** | `gen_*_edge.py` | **Free**, High Quality, No API Key | `pip install edge-tts` |
 | **Google Gemini** | `gen_*_gemini.py` | Professional, Google Cloud | `gcloud auth application-default login` |
 | **Alibaba Qwen** | `gen_*_qwen.py` | Concise, Neural | `DASHSCOPE_API_KEY` env var |
-| **CosyVoice** | `gen_*_cosy.py` | Offline/Local capable (300M model) | `torch`, `modelscope` |
+| **CosyVoice (Mac)** | `gen_*_cosy.py` | Offline/Local (CPU/MPS), 300M Model | [README-cosy.md](README-cosy.md) |
+| **CosyVoice (Spark)** | `gen_*_spark.py` | **NVIDIA DGX Spark** (ARM64 Docker), GPU Accel | [README-spark.md](README-spark.md) |
+| **CosyVoice (Pop!_OS)** | `gen_*_pop.py` | **System76 Laptop** (Host/x86), Native speed | [README-pop.md](README-pop.md) |
 
 ## Environment Setup (Recommended)
 
