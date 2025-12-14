@@ -40,30 +40,6 @@ except ImportError as e:
     print(f"Ensure you have cloned the repo to {COSYVOICE_PATH} and installed its requirements.")
     sys.exit(1)
 
-# -----------------------------------------------------------------------------
-# Runtime Patch: Enable MPS (Metal) Support for macOS
-# -----------------------------------------------------------------------------
-try:
-    from cosyvoice.cli.model import CosyVoiceModel
-    original_init = CosyVoiceModel.__init__
-
-    def patched_init(self, llm, flow, hift, fp16=False):
-        # Call original init (sets gpu or cpu)
-        original_init(self, llm, flow, hift, fp16)
-        # Check for MPS and override if available
-        if torch.backends.mps.is_available():
-            print("🚀 MPS (Metal Performance Shaders) detected! Enabling Mac GPU acceleration...")
-            self.device = torch.device('mps')
-            # Move submodules to MPS
-            self.llm = self.llm.to(self.device)
-            self.flow = self.flow.to(self.device)
-            self.hift = self.hift.to(self.device)
-    
-    # Apply patch
-    CosyVoiceModel.__init__ = patched_init
-except ImportError:
-    pass # CosyVoice not found or structure changed
-
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
 from text_cleaner import remove_space_before_god
