@@ -52,7 +52,9 @@ except Exception as e:
     print("Ensure you have 'modelscope' installed and dependencies met.")
     sys.exit(1)
 
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_pop.mp3")
 
 TEXT = """

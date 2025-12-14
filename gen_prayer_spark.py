@@ -82,7 +82,9 @@ if verse_ref:
 else:
     filename = f"prayer_{date_str}_spark.mp3"
 
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, filename)
 print(f"Target Output: {OUTPUT_PATH}")
 

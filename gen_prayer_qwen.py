@@ -77,7 +77,9 @@ if verse_ref:
     filename = f"prayer_{raw_filename.replace('.mp3', '')}_qwen.mp3"
 else:
     filename = f"prayer_{date_str}_qwen.mp3"
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, filename)
 print(f"Target Output: {OUTPUT_PATH}")
 

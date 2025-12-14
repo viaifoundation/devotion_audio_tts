@@ -90,7 +90,9 @@ if verse_ref:
     filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_gemini.mp3")
 else:
     filename = f"{date_str}_gemini.mp3"
-OUTPUT_DIR = os.getcwd()
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, filename)
 print(f"Target Output: {OUTPUT_PATH}")
 

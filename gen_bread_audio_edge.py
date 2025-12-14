@@ -116,8 +116,12 @@ FIRST_VOICE = "zh-CN-YunyangNeural"  # First voice (introduction)
 SECOND_VOICE = "zh-CN-XiaoxiaoNeural"  # Second voice (main content)
 #SECOND_VOICE = "zh-HK-WanLungNeural"  # First voice (introduction)
 #FIRST_VOICE = "zh-HK-HiuGaaiNeural"  # Second voice (main content)
-OUTPUT_DIR = os.getcwd()
-OUTPUT = os.path.join(OUTPUT_DIR, "bread_edge.mp3")
+first_line = "Bread_Audio"
+
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_edge.mp3")
 TEMP_DIR = OUTPUT_DIR + os.sep  # For temp files
 TEMP_FIRST = os.path.join(OUTPUT_DIR, "temp_first_bread.mp3")
 TEMP_SECOND = os.path.join(OUTPUT_DIR, "temp_second_bread.mp3")
