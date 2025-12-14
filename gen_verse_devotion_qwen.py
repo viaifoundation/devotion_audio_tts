@@ -88,10 +88,14 @@ if verse_match:
     verse_ref = f"{book} {ref}"
 else:
     # Fallback to standard (Book Chapter:Verse)
-    verse_match = re.search(r"\((.*?)\)", TEXT)
-    verse_ref = verse_match.group(1).strip() if verse_match else "Unknown-Verse"
+    # Handle both English () and Chinese （） parentheses, and both : and ： colons
+    verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
+    verse_ref = verse_match.group(1).strip() if verse_match else None
 
-filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_qwen.mp3")
+if verse_ref:
+    filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_qwen.mp3")
+else:
+    filename = f"{date_str}_qwen.mp3"
 OUTPUT_DIR = os.getcwd()
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, filename)
 print(f"Target Output: {OUTPUT_PATH}")

@@ -11,7 +11,7 @@ def convert_bible_reference(text):
     """
     # Pattern to match Bible references like "罗马书 1:17" or "罗马书 3:21,23-24"
     # Captures book name (Chinese characters), chapter (digits), and verse (single, range, or comma-separated like 21,23-24)
-    pattern = r'([^\s]+?)\s*(\d+):(\d+(?:,\d+(?:-\d+)?)?(?:-\d+)?)'
+    pattern = r'([^\s]+?)\s*(\d+)[:：](\d+(?:,\d+(?:-\d+)?)?(?:-\d+)?)'
     # Function to format the verse part
     def format_verse(match):
         book, chapter, verse = match.groups()
