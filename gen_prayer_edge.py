@@ -74,7 +74,7 @@ TEXT = convert_dates_in_text(TEXT)
 TEXT = remove_space_before_god(TEXT)
 
 # Split the text into paragraphs
-paragraphs = [p.strip() for p in TEXT.strip().split("\n") if p.strip()]
+paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 
 # Mandarin Voices for Rotation
 voices = [

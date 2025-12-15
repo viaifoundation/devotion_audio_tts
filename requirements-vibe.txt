@@ -1,6 +1,6 @@
 torch
 accelerate
-transformers
+transformers==4.51.3
 diffusers
 tqdm
 numpy
@@ -11,3 +11,9 @@ absl-py
 av
 numba
 llvmlite
+pydub
+gradio
+aiortc
+uvicorn[standard]
+fastapi
+soundfile

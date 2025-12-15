@@ -90,7 +90,7 @@ if __name__ == "__main__":
     TEXT = convert_bible_reference(TEXT)
     TEXT = remove_space_before_god(TEXT)
 
-    paragraphs = [p.strip() for p in TEXT.strip().split("\n") if p.strip()]
+    paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
     intro = paragraphs[0] if paragraphs else ""
     main = "\n".join(paragraphs[1:]) if len(paragraphs) > 1 else ""
 

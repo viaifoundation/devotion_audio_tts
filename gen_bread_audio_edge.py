@@ -39,7 +39,7 @@ TEXT = convert_bible_reference(TEXT)
 TEXT = remove_space_before_god(TEXT)
 
 # Split the text into paragraphs
-paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
+paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 first_paragraphs = [paragraphs[0]]  # First paragraph (introduction)
 second_paragraphs = ["\n\n".join(paragraphs[1:])]  # All remaining paragraphs (main content)
 
