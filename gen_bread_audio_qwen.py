@@ -4,9 +4,10 @@ import requests
 import dashscope
 from dashscope.audio.qwen_tts import SpeechSynthesizer
 from pydub import AudioSegment
+import re
 
 from bible_parser import convert_bible_reference
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 
 # Load API key from ~/.secrets (you already set this)
 dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -42,7 +43,7 @@ TEXT = """
 """
 
 TEXT = convert_bible_reference(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 intro = paragraphs[0]

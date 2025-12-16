@@ -5,6 +5,7 @@ import torch
 import numpy as np
 import sys
 import os
+import re
 import warnings
 
 # Silence noisy libraries
@@ -39,7 +40,7 @@ except ImportError as e:
     sys.exit(1)
 
 from bible_parser import convert_bible_reference
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 
 # Load model (uses cached files – no download)
 print("Loading CosyVoice-300M-Instruct (local offline)...")
@@ -72,7 +73,7 @@ TEXT = """
 """
 
 TEXT = convert_bible_reference(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 intro = paragraphs[0] if paragraphs else ""

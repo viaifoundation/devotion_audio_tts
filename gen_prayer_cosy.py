@@ -33,7 +33,7 @@ except ImportError as e:
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 
 print("Loading CosyVoice-300M-Instruct (local offline)...")
@@ -47,14 +47,10 @@ except Exception as e:
     sys.exit(1)
 
 TEXT = """
-亲爱的天父：
-我们感谢你，因你的恩典每一天都是新的！
-在这个安静的时刻，我们将心全然向你敞开。求你保守我们的心思意念，让我们在忙碌的生活中，依然能听见你微小的声音。
-主啊，求你赐给我们属天的智慧，让我们在面对挑战时，不依靠自己的聪明，而是单单仰望你。
-愿你的平安充满我们的家庭，愿你的爱流淌在我们彼此之间。
-也求你记念那些在病痛和软弱中的肢体，愿你的医治临到他们，使他们重新得力。
-感谢赞美主，听我们不配的祷告，奉主耶稣基督得胜的名求！阿门！
-(腓立比书 4:6-7) 12/14/2025
+“犹大地的伯利恒啊， 你在犹大诸城中并不是最小的； 因为将来有一位君王要从你那里出来， 牧养我以色列民。」”
+‭‭马太福音‬ ‭2‬:‭6‬ ‭CUNPSS-神‬‬
+
+神亲爱的主耶稣基督，我们在纪念你诞生的日子向你感恩，因你的诞生给我们带来了永活的泉源，更为我们带来了永生的盼望，主啊，我们为把你旨意传遍世界，乡音更好的为主的福音做了美好榜样，主啊，你的道路高过任何人的道路，乡音就是奉主的名走主你引领的道路，带领更多的人信主，为主做了美好的见证，主，求你为今年的乡音预备各样的资源，并𧶽不同地区同工们合一答配的心，把主的福音传到地极，我们这样的祷告，是奉主基督的名。阿们！
 """
 
 # Generate filename dynamically
@@ -72,8 +68,7 @@ else:
         date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse
-verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     # Remove VOTD prefix if filename_parser adds it
@@ -92,7 +87,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 

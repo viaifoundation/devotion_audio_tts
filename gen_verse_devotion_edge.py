@@ -5,7 +5,7 @@ from pydub import AudioSegment
 import os
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 import re
 from datetime import datetime
@@ -74,8 +74,7 @@ else:
 
 # 2. Extract Verse
 # Handle both English () and Chinese （） parentheses, and both : and ： colons
-verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_edge.mp3")
@@ -90,7 +89,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 # Split the text into paragraphs
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 first_paragraphs = [paragraphs[0]] # First paragraph (introduction)

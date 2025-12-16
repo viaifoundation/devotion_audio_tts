@@ -7,7 +7,7 @@ from pydub import AudioSegment
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 import re
 from datetime import datetime
@@ -28,24 +28,10 @@ if not dashscope.api_key:
          print("⚠️ Warning: DASHSCOPE_API_KEY not found in env or ~/.secrets. Script may fail.")
 
 TEXT = """
-親愛的天父上帝，
-我們滿心感恩來到祢面前，謝謝祢一路以來的帶領與供應。
-我們感謝祢的恩典，灣區「鄉音」能順利完成 Redemption Church 的場地簽約，這一切榮耀都歸給祢。
+“犹大地的伯利恒啊， 你在犹大诸城中并不是最小的； 因为将来有一位君王要从你那里出来， 牧养我以色列民。」”
+‭‭马太福音‬ ‭2‬:‭6‬ ‭CUNPSS-神‬‬
 
-主啊，我們也將聖地牙哥 UCSD – The Epstein Family Amphitheater 的租借與簽約過程交託在祢手中，懇求祢親自開路，保守每一個細節，按祢的時間與旨意成就。
-
-我們為南北加州四場「鄉音」事工向祢呼求，
-求祢祝福宣傳推廣、供應一切贊助與籌款需要，
-賜下智慧與秩序，使節目的籌備與執行都合乎祢心意。
-也懇求祢看顧所有同工及他們的家人，保守身體健康、心力更新，
-使我們在祢裡面同心合意，彼此相愛，滿有平安。
-
-主啊，願這一切事工都成為榮耀祢名、祝福人心的器皿，
-讓我們一同見證祢奇妙又信實的作為。
-
-以上禱告，奉主耶穌基督得勝的名求，阿們。
-
-以馬內利 🙏💖
+神亲爱的主耶稣基督，我们在纪念你诞生的日子向你感恩，因你的诞生给我们带来了永活的泉源，更为我们带来了永生的盼望，主啊，我们为把你旨意传遍世界，乡音更好的为主的福音做了美好榜样，主啊，你的道路高过任何人的道路，乡音就是奉主的名走主你引领的道路，带领更多的人信主，为主做了美好的见证，主，求你为今年的乡音预备各样的资源，并𧶽不同地区同工们合一答配的心，把主的福音传到地极，我们这样的祷告，是奉主基督的名。阿们！
 """
 
 # Generate filename dynamically
@@ -65,8 +51,7 @@ else:
 
 # 2. Extract Verse
 # Handle both English () and Chinese （） parentheses, and both : and ： colons
-verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     # Remove VOTD prefix if filename_parser adds it (it often does "VOTD_...")
@@ -85,7 +70,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 

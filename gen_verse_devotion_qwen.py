@@ -11,7 +11,7 @@ from pydub import AudioSegment
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 import re
 from datetime import datetime
@@ -84,17 +84,7 @@ else:
         date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse
-# Try matching (Book) Chapter:Verse first (e.g. "(以赛亚书) 7:14")
-verse_match = re.search(r"\((.*?)\)\s*(\d+[:：]\d+(?:[-\d+]*))", TEXT)
-if verse_match:
-    book = verse_match.group(1).strip()
-    ref = verse_match.group(2).strip()
-    verse_ref = f"{book} {ref}"
-else:
-    # Fallback to standard (Book Chapter:Verse)
-    # Handle both English () and Chinese （） parentheses, and both : and ： colons
-    verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-    verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_qwen.mp3")
@@ -108,7 +98,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 # Supported Qwen-TTS voices

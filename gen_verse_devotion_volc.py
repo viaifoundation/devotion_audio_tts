@@ -1,6 +1,7 @@
 # gen_verse_devotion_volc.py
-# Volcengine (ByteDance/Doubao) TTS – High Quality Chinese Voices
-# Requires VOLC_APPID and VOLC_TOKEN environment variables
+# Volcengine (ByteDance/Doubao) TTS
+# Uses HTTP V1 API for maximum compatibility. 
+# Requires VOLC_APPID and VOLC_TOKEN
 
 import io
 import os
@@ -14,41 +15,30 @@ from datetime import datetime
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 
 # Configuration
-APPID = os.getenv("VOLC_APPID", "YOUR_APPID_HERE")
-TOKEN = os.getenv("VOLC_TOKEN", "YOUR_TOKEN_HERE")
-CLUSTER = "volcano_tts" # Often "volcano_tts" for general use
+APPID = os.getenv("VOLC_APPID", "")
+TOKEN = os.getenv("VOLC_TOKEN", "")
+CLUSTER = "volcano_tts"
 
-# API Endpoint (Doubao/Volcengine V1/V2 typically uses this for speech synthesis)
-# We will use the standard HTTP API for compatibility
+# API Endpoint (HTTP V1)
 HOST = "openspeech.bytedance.com"
 API_URL = f"https://{HOST}/api/v1/tts"
 
-# Headers for API
-HEADERS = {
-    "Authorization": f"Bearer;{TOKEN}"
-}
-
-# Voices (Doubao 2.0 / Standard Voices)
-# Format: id (e.g. zh_female_vv_uranus_bigtts)
+# Voices
 VOICES = [
-    # Doubao 2.0 / High Quality
-    "zh_female_vv_uranus_bigtts",       # Vivi (Warm Female)
-    "zh_male_m191_uranus_bigtts",       # Yunzhou (Mature Male)
-    "zh_female_xiaohe_uranus_bigtts",   # Xiaohe (Gentle Female)
-    "zh_male_taocheng_uranus_bigtts",   # Xiaotian (Clear Male)
-    "zh_female_sister_uranus_bigtts"    # ZhiXin Jiejie (Friendly Female)
+    "zh_female_vv_uranus_bigtts",       # Vivi
+    "zh_male_m191_uranus_bigtts",       # Yunzhou
+    "zh_female_xiaohe_uranus_bigtts",   # Xiaohe
+    "zh_male_taocheng_uranus_bigtts",   # Xiaotian
+    "zh_female_sister_uranus_bigtts"    # ZhiXin Jiejie
 ]
 
 def check_auth():
-    if APPID == "YOUR_APPID_HERE" or TOKEN == "YOUR_TOKEN_HERE":
+    if not APPID or not TOKEN:
         print("❌ Error: Missing VOLC_APPID or VOLC_TOKEN.")
-        print("Please export them in your shell:")
-        print('  export VOLC_APPID="your_appid"')
-        print('  export VOLC_TOKEN="your_access_token"')
         return False
     return True
 
@@ -56,6 +46,11 @@ def speak(text: str, voice: str) -> AudioSegment:
     """Synthesize text using Volcengine HTTP API"""
     if not text.strip():
         return AudioSegment.empty()
+
+    headers = {
+        "Authorization": f"Bearer;{TOKEN}",
+        "Content-Type": "application/json"
+    }
 
     request_json = {
         "app": {
@@ -84,13 +79,12 @@ def speak(text: str, voice: str) -> AudioSegment:
     }
 
     try:
-        resp = requests.post(API_URL, json=request_json, headers=HEADERS)
+        # print(f"DEBUG: Sending to {API_URL} with voice {voice}...")
+        resp = requests.post(API_URL, json=request_json, headers=headers)
         if resp.status_code == 200:
             resp_data = resp.json()
             if "data" in resp_data and resp_data["data"]:
-                # Audio content is base64 encoded
-                audio_base64 = resp_data["data"]
-                audio_bytes = base64.b64decode(audio_base64)
+                audio_bytes = base64.b64decode(resp_data["data"])
                 return AudioSegment.from_mp3(io.BytesIO(audio_bytes))
             else:
                 print(f"⚠️ API Error: {resp.text}")
@@ -102,7 +96,6 @@ def speak(text: str, voice: str) -> AudioSegment:
     except Exception as e:
         print(f"❌ Request Failed: {e}")
         return AudioSegment.silent(duration=500)
-
 
 TEXT = """
 住在神的爱里面 (约翰一书 4:16) 12/13/2025
@@ -161,8 +154,7 @@ if __name__ == "__main__":
             date_str = datetime.today().strftime("%Y-%m-%d")
 
     # 2. Extract Verse
-    verse_match = re.search(r"\((.*?)\)", TEXT)
-    verse_ref = verse_match.group(1).strip() if verse_match else None
+    verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
     if verse_ref:
         filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_volc.mp3")
@@ -177,7 +169,7 @@ if __name__ == "__main__":
     # Process Text
     TEXT = convert_bible_reference(TEXT)
     TEXT = convert_dates_in_text(TEXT)
-    TEXT = remove_space_before_god(TEXT)
+    TEXT = clean_text(TEXT)
 
     paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 
@@ -212,7 +204,7 @@ if __name__ == "__main__":
             print(f"  > Part {i+1}.{j+1} - {voice}")
             global_p_index += 1
             
-            # Simple length check (Volcengine usually handles 1000+ chars ok, but cleaner to keep short)
+            # Simple synchronous call
             current_segment = speak(para, voice)
             section_audio += current_segment
             

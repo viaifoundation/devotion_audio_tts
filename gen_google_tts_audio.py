@@ -2,7 +2,7 @@ import sys
 from pydub import AudioSegment
 import os
 from bible_parser import convert_bible_reference
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 from google.cloud import texttospeech
 
 # Cleaned Chinese devotional text (replace with actual text)
@@ -16,7 +16,7 @@ TEXT = """
 """
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 # Split the text into paragraphs
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
 first_paragraphs = [paragraphs[0]] # First paragraph (introduction)

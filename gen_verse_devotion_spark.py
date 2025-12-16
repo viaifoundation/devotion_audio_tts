@@ -42,7 +42,7 @@ except ImportError as e:
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 
 print("Loading CosyVoice-300M-Instruct (local offline)...")
@@ -118,8 +118,7 @@ else:
 
 # 2. Extract Verse
 # Handle both English () and Chinese （） parentheses, and both : and ： colons
-verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     filename = filename_parser.generate_filename(verse_ref, date_str).replace(".mp3", "_spark.mp3")
@@ -133,7 +132,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 

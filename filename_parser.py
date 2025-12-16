@@ -114,6 +114,66 @@ def generate_filename(verse: str, date: str = None) -> str:
     date_str = date_obj.strftime("%Y-%m-%d")
     return f"VOTD_{reference}_{date_str}.mp3"
 
+import re
+
+# Books with only one chapter (where "Book Num" often means "Book Verse")
+SINGLE_CHAPTER_BOOKS = {
+    "俄巴底亚书", "俄", "Obadiah",
+    "腓利门书", "门", "Philemon",
+    "约翰二书", "约二", "2John",
+    "约翰三书", "约三", "3John",
+    "犹大书", "犹", "Jude"
+}
+
+def extract_verse_from_text(text: str) -> str:
+    """
+    Extracts the first valid Chinese Bible verse reference from text.
+    Strictly matches known book names defined in CHINESE_TO_ENGLISH mapping.
+    
+    Supports:
+    1. Standard: Book Chapter:Verse(-Range)? (e.g., 罗马书 10:14-17)
+    2. Single-Chapter: Book Verse(-Range)? (e.g., 犹大书 24-25 -> 犹大书 1:24-25)
+    """
+    # Sort keys by length descending
+    book_names = sorted(CHINESE_TO_ENGLISH.keys(), key=len, reverse=True)
+    book_pattern = "|".join(map(re.escape, book_names))
+    
+    # Pattern 1: Standard (Book Chap:Verse...)
+    # Matches: 罗马书 10:14, 罗马书 10:14-17
+    # Dash pattern: hyphen, en dash, em dash, double em dash
+    dash_re = r"(?:-|—|——|–)"
+    
+    # regex_std matches: (Book) (Chapter) : (Verse[-Verse])
+    # Note: We use dash_re for the range part
+    regex_std = rf"({book_pattern})\s*(\d+)[:：](\d+(?:{dash_re}\d+)?)"
+    match_std = re.search(regex_std, text)
+    
+    if match_std:
+        raw = match_std.group(0)
+        # Normalize all dash types to standard hyphen
+        raw = re.sub(dash_re, '-', raw)
+        return raw.replace('：', ':')
+
+    # Pattern 2: Single Chapter Books (Book Verse...)
+    # Only match if the book is in SINGLE_CHAPTER_BOOKS logic
+    # Filter book_names to only single chapter ones
+    single_books = [b for b in book_names if b in SINGLE_CHAPTER_BOOKS]
+    if single_books:
+        single_pattern = "|".join(map(re.escape, single_books))
+        regex_single = rf"({single_pattern})\s*(\d+(?:{dash_re}\d+)?)"
+        match_single = re.search(regex_single, text)
+        
+        if match_single:
+            book = match_single.group(1)
+            verse_part = match_single.group(2)
+            # Normalize dashes in verse part
+            verse_part = re.sub(dash_re, '-', verse_part)
+            # Normalize to Book 1:Verse format so other tools parse it correctly
+            return f"{book} 1:{verse_part}"
+
+    return None
+
+
 
 # ———————————————————————
 # Demo

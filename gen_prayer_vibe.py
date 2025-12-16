@@ -32,7 +32,7 @@ except ImportError as e:
 
 from bible_parser import convert_bible_reference
 from date_parser import convert_dates_in_text
-from text_cleaner import remove_space_before_god
+from text_cleaner import clean_text
 import filename_parser
 
 # Configuration
@@ -149,8 +149,7 @@ else:
         date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse
-verse_match = re.search(r"[\(（](.*?[\d]+[:：].*?)[\)）]", TEXT)
-verse_ref = verse_match.group(1).strip() if verse_match else None
+verse_ref = filename_parser.extract_verse_from_text(TEXT)
 
 if verse_ref:
     raw_filename = filename_parser.generate_filename(verse_ref, date_str)
@@ -168,7 +167,7 @@ print(f"Target Output: {OUTPUT_PATH}")
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = convert_dates_in_text(TEXT)
-TEXT = remove_space_before_god(TEXT)
+TEXT = clean_text(TEXT)
 
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 
