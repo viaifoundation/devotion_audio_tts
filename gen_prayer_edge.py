@@ -74,6 +74,7 @@ voices = [
 TEMP_DIR = OUTPUT_DIR + os.sep 
 
 async def generate_audio(text, voice, output_file):
+    print(f"DEBUG: Text to read: {text[:100]}...")
     communicate = edge_tts.Communicate(text=text, voice=voice)
     await communicate.save(output_file)
 

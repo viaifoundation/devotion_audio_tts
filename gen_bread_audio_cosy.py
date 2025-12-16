@@ -94,6 +94,7 @@ intro = paragraphs[0] if paragraphs else ""
 main = "\n".join(paragraphs[1:]) if len(paragraphs) > 1 else ""
 
 def speak(text: str, voice: str = "中文女") -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
     print(f"   Synthesizing ({len(text)} chars) with {voice}...")
     output_gen = cosyvoice.inference_sft(text, voice)
     

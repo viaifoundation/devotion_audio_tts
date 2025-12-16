@@ -95,6 +95,7 @@ paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 voices = ["中文女", "英文男", "中文男", "日语男", "粤语女"]
 
 def speak(text: str, voice: str) -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
     print(f"   Synthesizing ({len(text)} chars) with {voice}...")
     # SFT Inference
     output_gen = cosyvoice.inference_sft(text, voice)

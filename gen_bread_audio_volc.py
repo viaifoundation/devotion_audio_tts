@@ -24,6 +24,7 @@ HOST = "openspeech.bytedance.com"
 API_URL = f"https://{HOST}/api/v1/tts"
 
 def speak(text: str, voice: str = "zh_female_vv_uranus_bigtts") -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
     if not text.strip():
         return AudioSegment.empty()
 

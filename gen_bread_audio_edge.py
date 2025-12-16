@@ -126,6 +126,7 @@ TEMP_FIRST = os.path.join(OUTPUT_DIR, "temp_first_bread.mp3")
 TEMP_SECOND = os.path.join(OUTPUT_DIR, "temp_second_bread.mp3")
 
 async def generate_audio(text, voice, output_file):
+    print(f"DEBUG: Text to read: {text[:100]}...")
     communicate = edge_tts.Communicate(text=text, voice=voice)
     await communicate.save(output_file)
 

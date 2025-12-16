@@ -78,6 +78,7 @@ paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 voices = ["Cherry", "Serena", "Ethan", "Chelsie"]
 
 def speak(text: str, voice: str) -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
     # Qwen Limit check? It's usually good for short paragraphs.
     resp = SpeechSynthesizer.call(
         model="qwen-tts",

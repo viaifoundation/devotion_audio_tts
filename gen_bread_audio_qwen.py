@@ -77,6 +77,7 @@ def chunk_text(text: str, max_len: int = 450) -> list[str]:
     return chunks
 
 def speak(text: str, voice: str = "Cherry") -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
     resp = SpeechSynthesizer.call(
         model="qwen-tts",
         text=text,
