@@ -1,72 +1,67 @@
-# System76 Pop!_OS CosyVoice Guide
+# System76 Pop!_OS Guide (CosyVoice & GPT-SoVITS)
 
-This guide details how to run CosyVoice on a **System76 Pop!_OS** laptop with an NVIDIA GPU.
+This guide details how to run AI audio workflows on a **System76 Pop!_OS** laptop with an NVIDIA GPU.
 
 ## 1. Why Specific Configuration?
-Pop!_OS is an x86_64 Linux distribution that makes NVIDIA drivers exceptionally easy to manage. Unlike the Spark (ARM64), you have two great choices here:
-1.  **Host Run (Recommended)**: Run directly on your laptop. Fastest setup, no Docker overhead.
-2.  **Docker (Optional)**: If you prefer isolation.
+Pop!_OS (x86_64) makes NVIDIA driver management easy. We recommend running **directly on the host** for simplicity and performance.
 
 ## 2. Hardware Verification
-
-Verify your NVIDIA GPU is active:
 ```bash
-nvidia-smi
-# Should show your GPU (e.g., RTX 4060/3070) and CUDA Version (e.g., 12.x).
+nvidia-smi  # Confirm RTX GPU is active
 ```
 
-## 3. Host Installation (Recommended)
+---
 
-Run these commands in your terminal.
+## Workflow A: CosyVoice (TTS)
 
-### Step 1: System Dependencies
-Pop!_OS usually comes with drivers, but ensure you have the CUDA toolkit:
+### 1. Setup
 ```bash
-sudo apt update
-sudo apt install -y git ffmpeg build-essential system76-cuda-latest
-```
+# System Deps
+sudo apt update && sudo apt install -y git ffmpeg build-essential system76-cuda-latest
 
-### Step 2: Python Environment
-Use `pyenv` or `venv` to keep things clean.
-```bash
+# Python Env
 python3 -m venv tts-venv-pop
 source tts-venv-pop/bin/activate
-```
 
-### Step 3: Install PyTorch (CUDA Version)
-*CRITICAL*: Do not just `pip install torch`. You must specify the CUDA index URL.
-```bash
-# Install PyTorch with CUDA 12.1 support
+# Install PyTorch (CUDA 12.1)
 pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
 
-### Step 4: Install Project Dependencies
-```bash
+# Install Deps
 cd ~/github/devotion_audio_tts
 pip install -r requirements-cosy.txt
 pip install -r ../CosyVoice/requirements.txt
 ```
 
-## 4. How to Run
-
-Use the Pop!_OS specific scripts:
-
+### 2. Generate
 ```bash
 python gen_verse_devotion_pop.py
-# Output: [Verse]_[Date]_pop.mp3
 ```
 
-You should see:
-> `Loading CosyVoice-300M-Instruct... [CUDA=True, FP16=True]`
+---
 
-## 5. (Alternative) Docker Run
-If you prefer Docker:
+## Workflow B: GPT-SoVITS (Voice Cloning)
+
+### 1. Setup
 ```bash
-# Use standard NVIDIA PyTorch image (x86_64)
-docker run --gpus all -it --rm \
-  -v ~/github:/workspace/github \
-  -v ~/.cache/modelscope:/root/.cache/modelscope \
-  -w /workspace/github/devotion_tts \
-  nvcr.io/nvidia/pytorch:24.01-py3  # Works for x86 too
+# Environment
+conda create -n gptsovits python=3.10
+conda activate gptsovits
+
+# Clone
+git clone https://github.com/RVC-Boss/GPT-SoVITS
+cd GPT-SoVITS
+
+# Install Deps
+pip install -r requirements.txt
+pip install -r extra-req.txt --no-deps
+sudo apt install ffmpeg
+
+# Download Models
+# Place v2Pro models in GPT_SoVITS/pretrained_models/
 ```
-*Follow the "Manual Run" steps in README-spark.md inside the container, but skip the 'sed' command for onnxruntime-gpu (since x86 wheels exist).*
+
+### 2. Run
+```bash
+python webui.py
+```
+Open `http://localhost:9874`.
