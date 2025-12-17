@@ -109,8 +109,8 @@ which python
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/viaifoundation/devotion_audio_tts.git
-cd devotion_audio_tts
+git clone https://github.com/viaifoundation/devotion_tts.git
+cd devotion_tts
 pip install -r requirements.txt
 ```
 
@@ -148,16 +148,12 @@ Global requirements are listed in `requirements.txt`. Specific providers may hav
 - **Qwen**: `requirements-qwen.txt`
 - **CosyVoice**: `requirements-cosy.txt`
 
-## License
 
-MIT License
-
-## License
 
 This project is licensed under a custom **Non-Commercial / Proprietary** license.
 
 *   ✅ **Allowed:** Personal, Educational, and Non-Profit use.
 *   ❌ **Prohibited:** Commercial use without written permission.
-*   ℹ️ **Requirement:** You must provide clear credit to **VIAI Foundation**.
+*   ℹ️ **Requirement:** You must provide clear credit to **VI AI Foundation**.
 
 See the [LICENSE](LICENSE) file for full details.
