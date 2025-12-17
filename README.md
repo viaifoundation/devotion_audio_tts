@@ -151,3 +151,13 @@ Global requirements are listed in `requirements.txt`. Specific providers may hav
 ## License
 
 MIT License
+
+## License
+
+This project is licensed under a custom **Non-Commercial / Proprietary** license.
+
+*   ✅ **Allowed:** Personal, Educational, and Non-Profit use.
+*   ❌ **Prohibited:** Commercial use without written permission.
+*   ℹ️ **Requirement:** You must provide clear credit to **VIAI Foundation**.
+
+See the [LICENSE](LICENSE) file for full details.
