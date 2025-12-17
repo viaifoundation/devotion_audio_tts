@@ -42,18 +42,18 @@ It is highly recommended to use `pyenv` to manage Python versions and virtual en
 
 3.  **Create & Activate Virtual Environment**:
     ```bash
-    # Create virtual env named "tts-qwen-env"
-    pyenv virtualenv 3.12.12 tts-qwen-env
+    # Create virtual env named "tts-venv-qwen"
+    pyenv virtualenv 3.12.12 tts-venv-qwen
     
     # Activate it
-    pyenv activate tts-qwen-env
+    pyenv activate tts-venv-qwen
     
     # (Optional) Auto-activate when entering folder
-    pyenv local tts-qwen-env
+    pyenv local tts-venv-qwen
     ```
 
 4.  **Confirm Activation**:
-    You should see `(tts-qwen-env)` in your prompt.
+    You should see `(tts-venv-qwen)` in your prompt.
 
 ### B. Linux Setup Guide
 
@@ -77,10 +77,10 @@ It is highly recommended to use `pyenv` to manage Python versions and virtual en
     pyenv install 3.12.12
     
     # Create virtual env
-    pyenv virtualenv 3.12.12 tts-qwen-env
+    pyenv virtualenv 3.12.12 tts-venv-qwen
     
     # Activate
-    pyenv activate tts-qwen-env
+    pyenv activate tts-venv-qwen
     ```
 
 ### C. Helpful Commands
@@ -96,7 +96,7 @@ pyenv versions
 pyenv virtualenvs
 
 # Delete virtual env
-pyenv uninstall tts-qwen-env
+pyenv uninstall tts-venv-qwen
 
 # Check current python path
 which python

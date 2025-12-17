@@ -42,22 +42,6 @@ except ImportError as e:
 from bible_parser import convert_bible_reference
 from text_cleaner import clean_text
 
-# Load model (uses cached files – no download)
-print("Loading CosyVoice-300M-Instruct (local offline)...")
-try:
-    use_fp16 = torch.cuda.is_available()
-    print(f"Loading CosyVoice-300M-Instruct... [CUDA={use_fp16}, FP16={use_fp16}]")
-    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    print("Ensure you have 'modelscope' installed and dependencies met.")
-    sys.exit(1)
-
-OUTPUT_DIR = os.path.join(os.getcwd(), "output")
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_20251215_cosy.mp3")
-
 TEXT = """
 靈晨靈糧12月15日吴静师母：<“恩典25”第49篇：40天禁食祷告中经历神的恩典>
 
@@ -86,6 +70,24 @@ TEXT = """
 这次回国，最让我欣慰的是看到妈妈把圣经带回了房间，她说要重新开始读经。看着国内忙碌的生活——忙着生存，忙着挣钱，在那样快节奏的环境中坚持信仰确实不易。虽然几次想给姐姐们传福音未能深入，但我愿意恒切祷告，求神亲自开路，
 愿他们在经历神的恩手后，能得着那份真正的安稳，享受神所赐的生命。
 """
+
+# Load model (uses cached files – no download)
+print("Loading CosyVoice-300M-Instruct (local offline)...")
+try:
+    use_fp16 = torch.cuda.is_available()
+    print(f"Loading CosyVoice-300M-Instruct... [CUDA={use_fp16}, FP16={use_fp16}]")
+    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
+except Exception as e:
+    print(f"❌ Error loading model: {e}")
+    print("Ensure you have 'modelscope' installed and dependencies met.")
+    sys.exit(1)
+
+OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_20251215_cosy.mp3")
+
+
 TEXT = convert_bible_reference(TEXT)
 TEXT = clean_text(TEXT)
 

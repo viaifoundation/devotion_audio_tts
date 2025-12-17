@@ -45,18 +45,6 @@ from date_parser import convert_dates_in_text
 from text_cleaner import clean_text
 import filename_parser
 
-print("Loading CosyVoice-300M-Instruct (local offline)...")
-# CosyVoice automatically handles model download via modelscope if not present
-try:
-    # Auto-enable FP16 if CUDA is available for speed
-    use_fp16 = torch.cuda.is_available()
-    print(f"Loading CosyVoice-300M-Instruct (local offline)... [CUDA={use_fp16}, FP16={use_fp16}]")
-    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    print("Ensure you have 'modelscope' installed and dependencies met.")
-    sys.exit(1)
-
 TEXT = """
 忍耐生甘甜 (雅各书 5:8) 12/14/2025
 
@@ -99,6 +87,21 @@ TEXT = """
 奉耶稣的名，
 阿们。
 """
+
+
+print("Loading CosyVoice-300M-Instruct (local offline)...")
+# CosyVoice automatically handles model download via modelscope if not present
+try:
+    # Auto-enable FP16 if CUDA is available for speed
+    use_fp16 = torch.cuda.is_available()
+    print(f"Loading CosyVoice-300M-Instruct (local offline)... [CUDA={use_fp16}, FP16={use_fp16}]")
+    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
+except Exception as e:
+    print(f"❌ Error loading model: {e}")
+    print("Ensure you have 'modelscope' installed and dependencies met.")
+    sys.exit(1)
+
+
 
 # Generate filename dynamically
 # 1. Extract Date

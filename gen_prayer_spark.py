@@ -36,15 +36,6 @@ from date_parser import convert_dates_in_text
 from text_cleaner import clean_text
 import filename_parser
 
-print("Loading CosyVoice-300M-Instruct (local offline)...")
-try:
-    use_fp16 = torch.cuda.is_available()
-    print(f"Loading CosyVoice-300M-Instruct... [CUDA={use_fp16}, FP16={use_fp16}]")
-    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
-except Exception as e:
-    print(f"❌ Error loading model: {e}")
-    sys.exit(1)
-
 TEXT = """
 亲爱的天父：
 我们感谢你，因你的恩典每一天都是新的！
@@ -55,6 +46,18 @@ TEXT = """
 感谢赞美主，听我们不配的祷告，奉主耶稣基督得胜的名求！阿门！
 (腓立比书 4:6-7) 12/14/2025
 """
+
+
+print("Loading CosyVoice-300M-Instruct (local offline)...")
+try:
+    use_fp16 = torch.cuda.is_available()
+    print(f"Loading CosyVoice-300M-Instruct... [CUDA={use_fp16}, FP16={use_fp16}]")
+    cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
+except Exception as e:
+    print(f"❌ Error loading model: {e}")
+    sys.exit(1)
+
+
 
 # Generate filename dynamically
 first_line = TEXT.strip().split('\n')[0]

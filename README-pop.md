@@ -29,8 +29,8 @@ sudo apt install -y git ffmpeg build-essential system76-cuda-latest
 ### Step 2: Python Environment
 Use `pyenv` or `venv` to keep things clean.
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv tts-venv-pop
+source tts-venv-pop/bin/activate
 ```
 
 ### Step 3: Install PyTorch (CUDA Version)

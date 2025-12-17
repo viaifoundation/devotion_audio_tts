@@ -52,8 +52,8 @@ git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
 cd ~/github/devotion_audio_tts
 
 # Create/Activate environment
-pyenv virtualenv 3.12.12 tts-cosy-env
-pyenv activate tts-cosy-env
+pyenv virtualenv 3.12.12 tts-venv-cosy
+pyenv activate tts-venv-cosy
 
 # Install requirement for this project + CosyVoice dependencies
 pip install -r requirements-cosy.txt
@@ -67,8 +67,8 @@ Ensure you have NVIDIA drivers and CUDA toolkit installed.
 sudo apt-get update && sudo apt-get install -y git ffmpeg build-essential
 
 # 2. Python Environment
-pyenv virtualenv 3.12.12 tts-cosy-env
-pyenv activate tts-cosy-env
+pyenv virtualenv 3.12.12 tts-venv-cosy
+pyenv activate tts-venv-cosy
 
 # 3. Install Torch with CUDA support (Important for speed)
 # Check https://pytorch.org/get-started/locally/ for your CUDA version

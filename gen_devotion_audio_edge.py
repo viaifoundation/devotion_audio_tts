@@ -17,6 +17,9 @@ TEXT = """
 主，感谢你藉着历史给我们教训。求你赐给我们谦卑的心，愿意听取智慧的劝告。帮助我们善用你赐的权柄来服事人，而不是压制人。保守我们不因骄傲而做出错误的决定。感谢祷告奉耶稣得胜的名祈求，阿们！
 """
 
+# Cleaned Chinese devotional text
+
+
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)
 TEXT = clean_text(TEXT)

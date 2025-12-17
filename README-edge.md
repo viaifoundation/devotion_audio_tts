@@ -11,7 +11,7 @@ Uses Microsoft Edge's online text-to-speech service (via `edge-tts` library) for
 
 1. **Environment**:
    ```bash
-   pyenv activate edge-tts-env  # Recommended
+   pyenv activate tts-venv-edge  # Recommended
    pip install -r requirements-edge.txt
    ```
 

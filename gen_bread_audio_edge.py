@@ -8,6 +8,8 @@ import re
 from bible_parser import convert_bible_reference
 from text_cleaner import clean_text
 
+from text_cleaner import clean_text
+
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
 靈晨靈糧12月15日吴静师母：<“恩典25”第49篇：40天禁食祷告中经历神的恩典>
@@ -32,6 +34,8 @@ TEXT = """
 
 这次回国，最让我欣慰的是看到妈妈把圣经带回了房间，她说要重新开始读经。看着国内忙碌的生活——忙着生存，忙着挣钱，在那样快节奏的环境中坚持信仰确实不易。虽然几次想给姐姐们传福音未能深入，但我愿意恒切祷告，求神亲自开路，愿他们在经历神的恩手后，能得着那份真正的安稳，享受神所赐的生命。
 """
+
+
 
 # Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
 TEXT = convert_bible_reference(TEXT)

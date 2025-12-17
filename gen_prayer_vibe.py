@@ -35,6 +35,18 @@ from date_parser import convert_dates_in_text
 from text_cleaner import clean_text
 import filename_parser
 
+TEXT = """
+亲爱的天父：
+我们感谢你，因你的恩典每一天都是新的！
+在这个安静的时刻，我们将心全然向你敞开。求你保守我们的心思意念，让我们在忙碌的生活中，依然能听见你微小的声音。
+主啊，求你赐给我们属天的智慧，让我们在面对挑战时，不依靠自己的聪明，而是单单仰望你。
+愿你的平安充满我们的家庭，愿你的爱流淌在我们彼此之间。
+也求你记念那些在病痛和软弱中的肢体，愿你的医治临到他们，使他们重新得力。
+感谢赞美主，听我们不配的祷告，奉主耶稣基督得胜的名求！阿门！
+(腓立比书 4:6-7) 12/14/2025
+"""
+
+
 # Configuration
 MODEL_PATH = "microsoft/VibeVoice-Realtime-0.5B"  # HuggingFace model hub path
 VOICES_DIR = os.path.join(VIBEVOICE_PATH, "demo", "voices", "streaming_model")
@@ -123,16 +135,7 @@ except Exception as e:
     sys.exit(1)
 
 
-TEXT = """
-亲爱的天父：
-我们感谢你，因你的恩典每一天都是新的！
-在这个安静的时刻，我们将心全然向你敞开。求你保守我们的心思意念，让我们在忙碌的生活中，依然能听见你微小的声音。
-主啊，求你赐给我们属天的智慧，让我们在面对挑战时，不依靠自己的聪明，而是单单仰望你。
-愿你的平安充满我们的家庭，愿你的爱流淌在我们彼此之间。
-也求你记念那些在病痛和软弱中的肢体，愿你的医治临到他们，使他们重新得力。
-感谢赞美主，听我们不配的祷告，奉主耶稣基督得胜的名求！阿门！
-(腓立比书 4:6-7) 12/14/2025
-"""
+
 
 # Generate filename dynamically
 first_line = TEXT.strip().split('\n')[0]

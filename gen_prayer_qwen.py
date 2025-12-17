@@ -12,6 +12,13 @@ import filename_parser
 import re
 from datetime import datetime
 
+TEXT = """
+“犹大地的伯利恒啊， 你在犹大诸城中并不是最小的； 因为将来有一位君王要从你那里出来， 牧养我以色列民。」”
+‭‭马太福音‬ ‭2‬:‭6‬ ‭CUNPSS-神‬‬
+
+神亲爱的主耶稣基督，我们在纪念你诞生的日子向你感恩，因你的诞生给我们带来了永活的泉源，更为我们带来了永生的盼望，主啊，我们为把你旨意传遍世界，乡音更好的为主的福音做了美好榜样，主啊，你的道路高过任何人的道路，乡音就是奉主的名走主你引领的道路，带领更多的人信主，为主做了美好的见证，主，求你为今年的乡音预备各样的资源，并𧶽不同地区同工们合一答配的心，把主的福音传到地极，我们这样的祷告，是奉主基督的名。阿们！
+"""
+
 # Setup API Key
 dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
 if not dashscope.api_key:
@@ -27,12 +34,7 @@ if not dashscope.api_key:
     if not dashscope.api_key:
          print("⚠️ Warning: DASHSCOPE_API_KEY not found in env or ~/.secrets. Script may fail.")
 
-TEXT = """
-“犹大地的伯利恒啊， 你在犹大诸城中并不是最小的； 因为将来有一位君王要从你那里出来， 牧养我以色列民。」”
-‭‭马太福音‬ ‭2‬:‭6‬ ‭CUNPSS-神‬‬
 
-神亲爱的主耶稣基督，我们在纪念你诞生的日子向你感恩，因你的诞生给我们带来了永活的泉源，更为我们带来了永生的盼望，主啊，我们为把你旨意传遍世界，乡音更好的为主的福音做了美好榜样，主啊，你的道路高过任何人的道路，乡音就是奉主的名走主你引领的道路，带领更多的人信主，为主做了美好的见证，主，求你为今年的乡音预备各样的资源，并𧶽不同地区同工们合一答配的心，把主的福音传到地极，我们这样的祷告，是奉主基督的名。阿们！
-"""
 
 # Generate filename dynamically
 # 1. Extract Date

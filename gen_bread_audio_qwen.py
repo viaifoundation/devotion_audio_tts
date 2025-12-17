@@ -9,14 +9,6 @@ import re
 from bible_parser import convert_bible_reference
 from text_cleaner import clean_text
 
-# Load API key from ~/.secrets (you already set this)
-dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
-if not dashscope.api_key:
-    raise ValueError("Please set DASHSCOPE_API_KEY in ~/.secrets")
-
-OUTPUT_DIR = os.getcwd()
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_qwen.mp3")
-
 TEXT = """
 灵晨灵粮12月3日罗丽芳姊妹：<“恩典25”第48篇：打通信主的“任督二脉”>
 
@@ -41,6 +33,16 @@ TEXT = """
 期待以后在六家的大家庭中有信有靠有望的日子。
 
 """
+
+# Load API key from ~/.secrets (you already set this)
+dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
+if not dashscope.api_key:
+    raise ValueError("Please set DASHSCOPE_API_KEY in ~/.secrets")
+
+OUTPUT_DIR = os.getcwd()
+OUTPUT_PATH = os.path.join(OUTPUT_DIR, "bread_qwen.mp3")
+
+
 
 TEXT = convert_bible_reference(TEXT)
 TEXT = clean_text(TEXT)

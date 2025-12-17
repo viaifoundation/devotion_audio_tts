@@ -10,7 +10,7 @@ Uses Google Cloud Text-to-Speech (Gemini voices) for high-quality multi-voice au
 
 1. **Environment**:
    ```bash
-   pyenv activate gemini-tts-env
+   pyenv activate tts-venv-gemini
    pip install -r requirements-gemini.txt
    ```
 
