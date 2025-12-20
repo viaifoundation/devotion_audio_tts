@@ -6,7 +6,7 @@ from dashscope.audio.qwen_tts import SpeechSynthesizer
 from pydub import AudioSegment
 
 from bible_parser import convert_bible_reference
-from date_parser import convert_dates_in_text
+from date_parser import convert_dates_in_text, extract_date_from_text
 from text_cleaner import clean_text
 import filename_parser
 import re
@@ -58,18 +58,10 @@ if not dashscope.api_key:
 # Generate filename dynamically
 # 1. Extract Date
 TEXT = clean_text(TEXT)
-date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", TEXT)
-if date_match:
-    m, d, y = date_match.groups()
-    date_str = f"{y}-{int(m):02d}-{int(d):02d}"
-else:
-    # Try YYYY-MM-DD
-    date_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", TEXT)
-    if date_match:
-        y, m, d = date_match.groups()
-        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
-    else:
-        date_str = datetime.today().strftime("%Y-%m-%d")
+date_str = extract_date_from_text(TEXT)
+
+if not date_str:
+    date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse
 # Handle both English () and Chinese （） parentheses, and both : and ： colons
@@ -79,7 +71,11 @@ if verse_ref:
     extracted_prefix = CLI_PREFIX if CLI_PREFIX else filename_parser.extract_filename_prefix(TEXT)
     filename = filename_parser.generate_filename(verse_ref, date_str, extracted_prefix, base_name="Prayer").replace(".mp3", "_qwen.mp3")
 else:
-    filename = f"SOH_Sound_of_Home_Prayer_{date_str}_qwen.mp3"
+    extracted_prefix = CLI_PREFIX if CLI_PREFIX else filename_parser.extract_filename_prefix(TEXT)
+    if extracted_prefix:
+        filename = f"{extracted_prefix}_Prayer_{date_str}_qwen.mp3"
+    else:
+        filename = f"Prayer_{date_str}_qwen.mp3"
 OUTPUT_DIR = os.path.join(os.getcwd(), "output")
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)

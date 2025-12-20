@@ -32,7 +32,7 @@ except ImportError as e:
     sys.exit(1)
 
 from bible_parser import convert_bible_reference
-from date_parser import convert_dates_in_text
+from date_parser import convert_dates_in_text, extract_date_from_text
 from text_cleaner import clean_text
 import filename_parser
 import audio_mixer
@@ -78,20 +78,13 @@ except Exception as e:
 
 
 
-# Generate filename dynamically
+# 1. Extract Date
 TEXT = clean_text(TEXT)
 first_line = TEXT.strip().split('\n')[0]
-date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", TEXT)
-if date_match:
-    m, d, y = date_match.groups()
-    date_str = f"{y}-{int(m):02d}-{int(d):02d}"
-else:
-    date_match = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})", TEXT)
-    if date_match:
-        y, m, d = date_match.groups()
-        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
-    else:
-        date_str = datetime.today().strftime("%Y-%m-%d")
+date_str = extract_date_from_text(TEXT)
+
+if not date_str:
+    date_str = datetime.today().strftime("%Y-%m-%d")
 
 # 2. Extract Verse
 verse_ref = filename_parser.extract_verse_from_text(TEXT)
@@ -100,7 +93,11 @@ if verse_ref:
     extracted_prefix = CLI_PREFIX if CLI_PREFIX else filename_parser.extract_filename_prefix(TEXT)
     filename = filename_parser.generate_filename(verse_ref, date_str, extracted_prefix, base_name="Prayer").replace(".mp3", "_spark.mp3")
 else:
-    filename = f"SOH_Sound_of_Home_Prayer_{date_str}_spark.mp3"
+    extracted_prefix = CLI_PREFIX if CLI_PREFIX else filename_parser.extract_filename_prefix(TEXT)
+    if extracted_prefix:
+        filename = f"{extracted_prefix}_Prayer_{date_str}_spark.mp3"
+    else:
+        filename = f"Prayer_{date_str}_spark.mp3"
 
 OUTPUT_DIR = os.path.join(os.getcwd(), "output")
 if not os.path.exists(OUTPUT_DIR):
