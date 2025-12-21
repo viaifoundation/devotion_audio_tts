@@ -31,25 +31,29 @@ if __name__ == "__main__":
 
 # Custom handling for -? 
 if "-?" in sys.argv:
-    print(f"Usage: python {sys.argv[0]} [--bgm] [--rate RATE] [--bgm-volume VOL] [--bgm-intro MS] [--prefix PREFIX] [--help] [--version]")
+    print(f"Usage: python {sys.argv[0]} [--bgm] [--rate RATE] [--speed SPEED] [--bgm-volume VOL] [--bgm-intro MS] [--bgm-track TRACK] [--prefix PREFIX] [--help] [--version]")
     print("\nOptions:")
     print("  -h, --help           Show this help message and exit")
     print("  -?,                  Show this help message and exit")
-    print("  --bgm                Enable background music")
-    print("  --rate RATE          TTS Speech rate (default: +10%)")
-    print("  --bgm-volume VOL     BGM volume adjustment in dB (default: -12)")
-    print("  --bgm-intro MS       BGM intro delay in ms (default: 4000)")
+    print("  --bgm                Enable background music (Default: False)")
+    print("  --bgm-track TRACK    Specific BGM filename in assets/bgm (Default: AmazingGrace.MP3)")
+    print("  --rate RATE          TTS Speech rate (Default: +10%)")
+    print("  --speed SPEED        Same as --rate (e.g. +10%, -5%)")
+    print("  --bgm-volume VOL     BGM volume adjustment in dB (Default: -12)")
+    print("  --bgm-intro MS       BGM intro delay in ms (Default: 4000)")
     print("  --prefix PREFIX      Filename prefix (overrides 'FilenamePrefix' in text)")
     print("  --version, -v        Show program version")
     print("\n  (Note: You can also add 'FilenamePrefix: <Prefix>' in the input TEXT)")
     sys.exit(0)
 
 parser = argparse.ArgumentParser(description="Generate Prayer Audio with Edge TTS")
-parser.add_argument("--bgm", action="store_true", help="Enable background music")
-parser.add_argument("--rate", type=str, default="+10%", help="TTS Speech rate (e.g. +10%%)")
-parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB")
-parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms")
-parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--rate", type=str, default="+10%", help="TTS Speech rate (Default: +10%%)")
+parser.add_argument("--speed", type=str, default=None, help="Alias for --rate (e.g. +10%%)")
+parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB (Default: -12)")
+parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms (Default: 4000)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
+parser.add_argument("--prefix", type=str, default=None, help="Filename prefix (e.g. MyPrefix)")
 parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}")
 
 args, unknown = parser.parse_known_args()
@@ -58,60 +62,65 @@ args, unknown = parser.parse_known_args()
 if args.bgm:
     ENABLE_BGM = True
 
-TTS_RATE = args.rate
+# Allow --speed to override --rate if provided
+if args.speed:
+    # Check if user provided just a number like "+20" or "-10"
+    if not "%" in args.speed and (args.speed.startswith("+") or args.speed.startswith("-") or args.speed.isdigit()):
+        TTS_RATE = f"{args.speed}%"
+    else:
+        TTS_RATE = args.speed
+else:
+    TTS_RATE = args.rate
+
 BGM_VOLUME = args.bgm_volume
 BGM_INTRO_DELAY = args.bgm_intro
+BGM_FILE = args.bgm_track # If None, mixer will pick random
 CLI_PREFIX = args.prefix
 
 
 
 TEXT = """
-天路音樂 「鄉音情」12月19日禱告
+天路音樂 「鄉音情」12月21日禱告
 
-親愛的天父上帝，
-我們滿懷感恩與敬畏來到祢面前，
-感謝祢一路的帶領與看顧。
+亲爱的天父上帝，
+在这纪念救主耶稣基督降生的圣诞佳节，
+我们满心感恩来到祢的施恩宝座前，
+为「乡音」事工中所有忠心摆上的筹备同工，
+以及他们宝贵的家人向祢献上感谢。
 
-主啊，我們首先要向祢獻上感恩——
-感謝祢的恩典與信實，
-灣區「鄉音」場地 Redemption Church 已正式完成簽約！
-這不是人的能力，乃是祢親自為我們開路。
-一切榮耀、頌讚都歸給坐在寶座上的主。
+主啊，祢看见他们在繁忙、压力与牺牲中的忠心，
+也看见他们为福音、为合一所付出的每一滴汗水。
+求祢亲自纪念他们一切看得见与看不见的辛劳，
+以祢的恩典与平安亲自报答他们。
 
-主啊，我們也為接下來的道路向祢呼求：
-懇切為 聖地牙哥 UCSD – The Epstein Family Amphitheater 的租借與簽約過程禱告。
-求祢親自介入，
-在每一個溝通、每一個流程、每一個決定中掌權，
-除去一切攔阻與不確定，
-使一切細節都按祢的旨意、平安順利地完成。
-願福音的門，按祢的時間，在校園中被敞開。
+我们奉主耶稣的名祷告，
+求祢用宝血遮盖每一位同工和他们的家人，
+保守身体健康、心灵平安、家庭和睦，
+在疲惫中得力，在挑战中得智慧，
+在软弱时被祢的爱再次托住。
 
-主啊，我們將南北加州四場「鄉音」事工一同交託在祢手中——
-求祢祝福宣傳推廣的展開，
-使該聽見的人能聽見，該來到的人能被吸引；
-也求祢親自供應贊助與籌款的一切需要，
-因為祢是豐盛的主，從不誤事。
+主啊，求祢设立属灵的保护墙，
+阻挡并捆绑一切来自魔鬼的攻击、搅扰、分裂与灰心，
+不容仇敌在任何层面有可乘之机。
+宣告「乡音」的一切筹备工作都在祢的权柄与带领之下，
+凡所计划的尽都顺利，凡所行的都蒙祢喜悦。
 
-我們也為節目的籌備與執行製作流程禱告，
-求祢賜下從天而來的智慧、秩序與專業，
-使每一個環節彼此配搭、同心合一，
-不為表演，乃為榮耀祢的名。
+愿圣灵继续引导每一个细节，
+使团队同心合意、沟通顺畅、时间与资源充足，
+让筹备工作在平安与喜乐中完成，
+使更多生命因「乡音」得着安慰、盼望与更新。
 
-主啊，也懇切為所有同工及他們的家人禱告，
-求祢保守身體健康、心力剛強，
-在忙碌與壓力中仍得著從祢而來的平安與喜樂。
-讓我們在愛中同工，在合一中前行。
+最后，主啊，
+愿基督降生的真光，照亮每一位同工和他们的家庭，
+使平安、喜乐与盼望充满这个圣诞节。
 
-天父，我們深信：
-若不是耶和華建造房屋，建造的人就枉然勞力。
-願我們在主裡同心合意，
-一同見證祢奇妙、榮耀的作為。
+圣诞快乐！愿主的爱常与大家同在。 
 
-以上禱告，
-是奉靠我主耶穌基督得勝的名求，
-阿們。
+我们如此祷告、仰望、交托，
+奉我主耶稣基督得胜的名祈求，
 
-以馬內利 🤍
+阿们。
+
 """
 
 # Generate filename dynamically

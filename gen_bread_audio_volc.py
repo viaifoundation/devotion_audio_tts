@@ -13,25 +13,55 @@ import requests
 from pydub import AudioSegment
 
 from bible_parser import convert_bible_reference
-from bible_parser import convert_bible_reference
 from text_cleaner import clean_text
 from datetime import datetime
 import argparse
 import filename_parser
+import audio_mixer
 
 # CLI Args
 if "-?" in sys.argv:
-    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--help]")
-    print("Options:")
-    print("  --prefix PREFIX      Filename prefix (overrides 'FilenamePrefix' in text)")
+    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--speed SPEED] [--bgm] [--bgm-track TRACK] [--bgm-volume VOL] [--bgm-intro MS] [--help]")
+    print ("\nOptions:")
+    print("  --prefix PREFIX      Filename prefix (e.g. MyPrefix)")
+    print("  --speed SPEED        Speech speed adjustment (e.g. +20, -10, or 1.2)")
+    print("  --bgm                Enable background music (Default: False)")
+    print("  --bgm-track TRACK    Specific BGM filename (Default: AmazingGrace.MP3)")
+    print("  --bgm-volume VOL     BGM volume adjustment in dB (Default: -12)")
+    print("  --bgm-intro MS       BGM intro delay in ms (Default: 4000)")
     print("  --help, -h           Show this help")
     print("\n  (Note: You can also add 'FilenamePrefix: <Prefix>' in the input TEXT)")
     sys.exit(0)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
+parser.add_argument("--prefix", type=str, default=None, help="Filename prefix (e.g. MyPrefix)")
+parser.add_argument("--speed", type=str, default=None, help="Speech speed adjustment (e.g. +20)")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
+parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB (Default: -12)")
+parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms (Default: 4000)")
+
 args, unknown = parser.parse_known_args()
 CLI_PREFIX = args.prefix
+ENABLE_BGM = args.bgm
+BGM_FILE = args.bgm_track
+BGM_VOLUME = args.bgm_volume
+BGM_INTRO_DELAY = args.bgm_intro
+
+# Calculate Speed Ratio
+SPEED_RATIO = 1.0
+if args.speed:
+    val_str = args.speed.replace("%", "")
+    try:
+        if val_str.startswith("+") or val_str.startswith("-"):
+            # e.g. +20 -> 1.2, -10 -> 0.9
+            SPEED_RATIO = 1.0 + (float(val_str) / 100.0)
+        else:
+            # e.g. 1.2 or 0.9 directly
+            SPEED_RATIO = float(val_str)
+    except ValueError:
+        print(f"⚠️ Invalid speed format '{args.speed}', using default 1.0")
+        SPEED_RATIO = 1.0
 
 TEXT = """
 灵晨灵粮12月3日罗丽芳姊妹：<“恩典25”第48篇：打通信主的“任督二脉”>
@@ -78,7 +108,7 @@ def speak(text: str, voice: str = "zh_female_vv_uranus_bigtts") -> AudioSegment:
         "audio": {
             "voice_type": voice,
             "encoding": "mp3",
-            "speed_ratio": 1.0,
+            "speed_ratio": SPEED_RATIO,
             "volume_ratio": 1.0,
             "pitch_ratio": 1.0,
         },
@@ -174,6 +204,16 @@ if __name__ == "__main__":
 
     final = seg_intro + AudioSegment.silent(duration=600) + seg_main
     final = final.set_frame_rate(24000)
+
+    # Add Background Music (Optional)
+    if ENABLE_BGM:
+        print(f"🎵 Mixing Background Music (Vol={BGM_VOLUME}dB, Intro={BGM_INTRO_DELAY}ms)...")
+        final = audio_mixer.mix_bgm(
+            final, 
+            specific_filename=BGM_FILE,
+            volume_db=BGM_VOLUME,
+            intro_delay_ms=BGM_INTRO_DELAY
+        )
 
 # Metadata extraction
 PRODUCER = "VI AI Foundation"

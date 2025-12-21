@@ -14,67 +14,77 @@ TTS_RATE = "+10%"  # Speed up by 10%
 
 import argparse
 
+import audio_mixer
+
 # CLI Args
 if "-?" in sys.argv:
-    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--help]")
+    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--speed SPEED] [--bgm] [--bgm-track TRACK] [--bgm-volume VOL] [--bgm-intro MS] [--help]")
     print("Options:")
-    print("  --prefix PREFIX      Filename prefix (overrides 'FilenamePrefix' in text)")
+    print("  --prefix PREFIX      Filename prefix (e.g. MyPrefix)")
+    print("  --speed SPEED        Speech rate adjustment (e.g. +10%, -5%)")
+    print("  --bgm                Enable background music (Default: False)")
+    print("  --bgm-track TRACK    Specific BGM filename (Default: AmazingGrace.MP3)")
+    print("  --bgm-volume VOL     BGM volume adjustment in dB (Default: -12)")
+    print("  --bgm-intro MS       BGM intro delay in ms (Default: 4000)")
     print("  --help, -h           Show this help")
-    print("\n  (Note: You can also add 'FilenamePrefix: <Prefix>' in the input TEXT)")
     sys.exit(0)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
+parser.add_argument("--prefix", type=str, default=None, help="Filename prefix (e.g. MyPrefix)")
+parser.add_argument("--speed", type=str, default=None, help="Speech rate adjustment (e.g. +10%%)")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
+parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB (Default: -12)")
+parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms (Default: 4000)")
+
 args, unknown = parser.parse_known_args()
 CLI_PREFIX = args.prefix
 
+ENABLE_BGM = args.bgm
+BGM_FILE = args.bgm_track
+BGM_VOLUME = args.bgm_volume
+BGM_INTRO_DELAY = args.bgm_intro
+
+if args.speed:
+    if not "%" in args.speed and (args.speed.startswith("+") or args.speed.startswith("-") or args.speed.isdigit()):
+        TTS_RATE = f"{args.speed}%"
+    else:
+        TTS_RATE = args.speed
+
 # Cleaned Chinese devotional text (replace with actual text)
 TEXT = """
-谦卑的开始 (路加福音 1:35) 12/19/2025
+超越常规的信心 (路加福音 1:45) 12/20/2025
 
-现在我们既靠着他的血称义，就更要藉着他免去　神的忿怒。因为我们作仇敌的时候，且藉着　神儿子的死，得与　神和好；既已和好，就更要因他的生得救了。不但如此，我们既藉着我主耶稣基督得与　神和好，也就藉着他以　神为乐。
-亚当和基督
-(罗马书 5:9-11 和合本)
-不但这样，我们现在已经藉着我们的主耶稣基督与　神复和，也藉着他以　神为荣。
-(罗马书 5:11 新译本)
-到那日，你们什么也就不问我了。我实实在在地告诉你们，你们若向父求什么，他必因我的名赐给你们。向来你们没有奉我的名求什么，如今你们求，就必得着，叫你们的喜乐可以满足。”
-(约翰福音 16:23-24 和合本)
-到了那天，你们什么也不会问我了。我实实在在告诉你们，你们奉我的名无论向父求什么，他必定赐给你们。你们向来没有奉我的名求什么；现在你们祈求，就必定得着，让你们的喜乐满溢。
-(约翰福音 16:23-24 新译本)
+天使对妇女说：“不要害怕！我知道你们是寻找那钉十字架的耶稣。他不在这里，照他所说的，已经复活了。你们来看安放主的地方。快去告诉他的门徒，说他从死里复活了，并且在你们以先往加利利去，在那里你们要见他。看哪，我已经告诉你们了。”
+(马太福音 28:5-7 和合本)
+快去告诉他的门徒：‘他已经从死人中复活了。他会比你们先到加利利去，你们在那里必看见他。’现在我已经告诉你们了。”
+(马太福音 28:7 新译本)
+我告诉你们，一个罪人悔改，在天上也要这样为他欢喜，较比为九十九个不用悔改的义人欢喜更大。”
+(路加福音 15:7 和合本)
+我告诉你们，因为一个罪人悔改，天上也要这样为他欢乐，比为九十九个不用悔改的义人欢乐更大。
+(路加福音 15:7 新译本)
+妇女们就急忙离开坟墓，又害怕，又大大地欢喜，跑去要报给他的门徒。
+(马太福音 28:8)
 
-天使回答说：“圣灵要临到你身上，至高者的能力要荫庇你，因此所要生的圣者必称为　神的儿子（或译：所要生的，必称为圣，称为　神的儿子）。
-(路加福音 1:35 和合本)
-天使回答：“圣灵要临到你，至高者的能力要覆庇你，因此那将要出生的圣者，必称为　神的儿子。
-(路加福音 1:35 新译本)
-天使回答她，说：
-“圣灵将要临到你，
-至高者的大能要荫庇你，
-因此，那要诞生的圣者
-将被称为神的儿子。
-(路加福音 1:35 标准译本)
-天使回答说：“圣灵要临到你身上，至高者的能力要荫庇你，所以你要生的那圣婴必称为上帝的儿子。
-(路加福音 1:35 当代译本)
+伊利莎白一听马利亚问安，所怀的胎就在腹里跳动。伊利莎白且被圣灵充满，高声喊着说：“你在妇女中是有福的！你所怀的胎也是有福的！我主的母到我这里来，这是从哪里得的呢？因为你问安的声音一入我耳，我腹里的胎就欢喜跳动。这相信的女子是有福的！因为主对她所说的话都要应验。”
+(路加福音 1:41-45 和合本)
+这相信主传给她的话必要成就的女子是有福的。”
+(路加福音 1:45 新译本)
+那相信主所说的话必定实现的女子有福了！”
+(路加福音 1:45 当代译本)
 
-谦卑的开始
+超越常规的信心
 
-“天使回答说：‘圣灵要临到你身上，至高者的能力要荫庇你，因此所要生的圣者必称为神的儿子。’”（路加福音 1:35）
+当天使宣布马利亚将怀上神的儿子时，她还是一个在拿撒勒小城里过着宁静生活的少女（路加福音 1:31）。一般人要是听到这样的消息，本能的反应可能是恐惧、震惊或敬畏。然而，马利亚的反应却是相信——相信天使告诉她的是事实。她对天使说：“我是主的使女，情愿照你的话成就在我身上。”（路加福音 1:38）。 
 
-世代以来期盼的弥撒亚。先知已预言，人们也殷切地等候。就在一个纯朴的小镇里，预言实现了。像我们一样从呱呱落地那一刻起展开一生，神的儿子也拥有了人类的脆弱和局限。圣洁与大能同时在人类身上得以体现。对马利亚来说，她的儿子出世了。
+马利亚的表姐伊利莎白目睹了她如此坚定不移的信心，在圣灵的感动下高声祝福马利亚和认可她的信心：“这相信的女子是有福的！因为主对她所说的话都要应验。”
 
-在耶稣降临的所有预言之后，你认为有人会想象到，他会以婴儿的形体来开始他在地上的生命吗？他会从婴儿成长为儿童，再成长为青少年，最后成长为成年人，就像亚当和夏娃的后代一样？即使在他传道期间，人们也喜欢将耶稣视为征服者——一个将推翻罗马政权并成为他们的王的强大人物。他们要耶稣通过赋予他们力量来展现他的权能。
+在这些简单的话语中，我们受到提醒要将我们的信心锚定在坚定不移的真理上，那就是神会按照他的话语信实地履行他的应许。伊利莎白的宣告——“这相信的女子是有福的”——不仅仅是一个观察，也是一种当下的肯定。重点不仅在于这些应许必将实现，还在于因相信和仰赖神的计划而带来的祝福。它促使我们审视自己的信心之旅。我们是否像马利亚一样，选择顺服并仰赖于神的应许？
 
-然而耶稣却谦卑至极。
-
-他心甘情愿地在世上开始他完全无能为力的人生，由他的母亲马利亚所生，过着简单的生活。
-
-耶稣从与天父合一、强大而至高无上，到心甘情愿地从人类的生命开始，生为一个必须依赖他人的婴儿。这种谦卑是他生命和使命的标志。他不是来推翻政权的，而是通过他充满爱的牺牲，通过道成肉身，然后自愿放弃生命来推翻罪恶。
-
-神的儿子。马利亚的儿子。神完美的计划终于显现出来。
-
-谦卑。从一开始就是耶稣的印记。
+今天，你在祷告中寻求主之际，要对意外的祝福表示感激。祈求洞察力来识别神的手在做工，即使你的处境看来似乎完全相反。
 
 祷告
-主耶稣，你拥有世界上和宇宙中所有的权能，但你却放弃了这些权柄，并降生于世上。你是何等谦卑。如果不是你谦卑地降世为人，我就不可能从罪恶和死亡中被拯救出来。谢谢你。谢谢你。谢谢你。阿们。
+神啊，尽管我心存疑虑和恐惧，我还是要来到你面前。无论你把我引向何方，我选择相信并仰赖你的大能和应许。求你增强并祝福我的信心。让我充满洞察力和感恩之心。奉耶稣的名，阿们。
 """
 
 # Generate filename dynamically
@@ -213,6 +223,16 @@ async def main():
         final += seg
         if i < len(final_segments) - 1:
             final += silence_sections
+
+    # Add Background Music (Optional)
+    if ENABLE_BGM:
+        print(f"🎵 Mixing Background Music (Vol={BGM_VOLUME}dB, Intro={BGM_INTRO_DELAY}ms)...")
+        final = audio_mixer.mix_bgm(
+            final, 
+            specific_filename=BGM_FILE,
+            volume_db=BGM_VOLUME,
+            intro_delay_ms=BGM_INTRO_DELAY
+        )
 
     # Metadata extraction
     PRODUCER = "VI AI Foundation"

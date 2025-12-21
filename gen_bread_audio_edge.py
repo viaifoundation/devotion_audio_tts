@@ -15,10 +15,56 @@ import audio_mixer
 
 VERSION = "1.0.0"
 ENABLE_BGM = False
-BGM_FILE = "AmazingGrace.MP3"
+BGM_FILE = "AmazingGrace.MP3" # Default to AmazingGrace
 TTS_RATE = "+10%"  # Default Speed
 BGM_VOLUME = -12   # Default dB
 BGM_INTRO_DELAY = 4000 # Default ms
+
+# Custom handling for -? 
+if "-?" in sys.argv:
+    print(f"Usage: python {sys.argv[0]} [--bgm] [--rate RATE] [--speed SPEED] [--bgm-volume VOL] [--bgm-intro MS] [--bgm-track TRACK] [--help] [--version]")
+    print("\nOptions:")
+    print("  -h, --help           Show this help message and exit")
+    print("  -?,                  Show this help message and exit")
+    print("  --bgm                Enable background music (Default: False)")
+    print("  --bgm-track TRACK    Specific BGM filename in assets/bgm (Default: AmazingGrace.MP3)")
+    print("  --rate RATE          TTS Speech rate (Default: +10%)")
+    print("  --speed SPEED        Alias for --rate (e.g. +10%, -5%)")
+    print("  --bgm-volume VOL     BGM volume adjustment in dB (Default: -12)")
+    print("  --bgm-intro MS       BGM intro delay in ms (Default: 4000)")
+    print("  --version, -v        Show program version")
+    sys.exit(0)
+
+parser = argparse.ArgumentParser(description="Generate Bread Audio with Edge TTS")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--rate", type=str, default="+10%", help="TTS Speech rate (Default: +10%%)")
+parser.add_argument("--speed", type=str, default=None, help="Alias for --rate (e.g. +10%%)")
+parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB (Default: -12)")
+parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms (Default: 4000)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
+parser.add_argument("--prefix", type=str, default=None, help="Filename prefix (e.g. MyPrefix)")
+parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}")
+
+args, unknown = parser.parse_known_args()
+
+CLI_PREFIX = args.prefix
+
+# Update global config based on CLI
+if args.bgm:
+    ENABLE_BGM = True
+
+# Allow --speed to override --rate if provided
+if args.speed:
+    if not "%" in args.speed and (args.speed.startswith("+") or args.speed.startswith("-") or args.speed.isdigit()):
+        TTS_RATE = f"{args.speed}%"
+    else:
+        TTS_RATE = args.speed
+else:
+    TTS_RATE = args.rate
+
+BGM_VOLUME = args.bgm_volume
+BGM_INTRO_DELAY = args.bgm_intro
+BGM_FILE = args.bgm_track
 
 
 # Cleaned Chinese devotional text (replace with actual text)
@@ -264,38 +310,10 @@ async def main():
     combined_audio.export(OUTPUT_PATH, format="mp3", tags={'title': TITLE, 'artist': PRODUCER})
     print(f"✅ Combined audio saved: {OUTPUT_PATH}")
 
-if __name__ == "__main__":
-    # Custom handling for -? (which argparse doesn't support natively as a flag often)
-    if "-?" in sys.argv:
-        print(f"Usage: python {sys.argv[0]} [--bgm] [--rate RATE] [--bgm-volume VOL] [--bgm-intro MS] [--help] [--version]")
-        print("\nOptions:")
-        print("  -h, --help           Show this help message and exit")
-        print("  -?,                  Show this help message and exit")
-        print("  --bgm                Enable background music")
-        print("  --rate RATE          TTS Speech rate (default: +10%)")
-        print("  --bgm-volume VOL     BGM volume adjustment in dB (default: -12)")
-        print("  --bgm-intro MS       BGM intro delay in ms (default: 4000)")
-        print("  --version, -v        Show program version")
-        sys.exit(0)
 
-    parser = argparse.ArgumentParser(description="Generate Bread Audio with Edge TTS")
-    parser.add_argument("--bgm", action="store_true", help="Enable background music")
-    parser.add_argument("--rate", type=str, default="+10%", help="TTS Speech rate (e.g. +10%%)")
-    parser.add_argument("--bgm-volume", type=int, default=-12, help="BGM volume adjustment in dB")
-    parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms")
-    parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
-    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}")
-    
-    args = parser.parse_args()
-    
-    CLI_PREFIX = args.prefix
-    
-    # Update global config based on CLI
-    if args.bgm:
-        ENABLE_BGM = True
-    
-    TTS_RATE = args.rate
-    BGM_VOLUME = args.bgm_volume
-    BGM_INTRO_DELAY = args.bgm_intro
+
+
+if __name__ == "__main__":
+
 
     asyncio.run(main())
