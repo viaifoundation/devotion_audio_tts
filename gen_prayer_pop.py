@@ -40,30 +40,32 @@ import audio_mixer
 import argparse
 
 # CLI Args
-if "-?" in sys.argv:
-    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--help]")
-    print("Options:")
-    print("  --prefix PREFIX      Filename prefix (overrides 'FilenamePrefix' in text)")
-    print("  --help, -h           Show this help")
-    sys.exit(0)
-
 parser = argparse.ArgumentParser()
+parser.add_argument("--input", "-i", type=str, help="Input text file")
 parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
 args, unknown = parser.parse_known_args()
 CLI_PREFIX = args.prefix
+ENABLE_BGM = args.bgm
+BGM_FILE = args.bgm_track
 
-ENABLE_BGM = False
-BGM_FILE = "AmazingGrace.MP3"
+# 1. Try --input argument
+if args.input:
+    print(f"Reading text from file: {args.input}")
+    with open(args.input, "r", encoding="utf-8") as f:
+        TEXT = f.read()
 
-TEXT = """
-亲爱的天父：
-我们感谢你，因你的恩典每一天都是新的！
-在这个安静的时刻，我们将心全然向你敞开。求你保守我们的心思意念，让我们在忙碌的生活中，依然能听见你微小的声音。
-主啊，求你赐给我们属天的智慧，让我们在面对挑战时，不依靠自己的聪明，而是单单仰望你。
-愿你的平安充满我们的家庭，愿你的爱流淌在我们彼此之间。
-也求你记念那些在病痛和软弱中的肢体，愿你的医治临到他们，使他们重新得力。
-感谢赞美主，听我们不配的祷告，奉主耶稣基督得胜的名求！阿门！
-(腓立比书 4:6-7) 12/14/2025
+# 2. Try Stdin (Piped)
+elif not sys.stdin.isatty():
+    print("Reading text from Stdin...")
+    TEXT = sys.stdin.read()
+
+# 3. Fallback
+else:
+    TEXT = """
+“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。因为　神差他的儿子降世，不是要定世人的罪，乃是要叫世人因他得救。信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。
+(约翰福音 3:16-18)
 """
 
 

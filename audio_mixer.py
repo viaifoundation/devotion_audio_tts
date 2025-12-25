@@ -2,7 +2,7 @@ import os
 import random
 from pydub import AudioSegment
 
-def mix_bgm(speech_audio: AudioSegment, bgm_dir: str = "assets/bgm", volume_db: int = -12, intro_delay_ms: int = 4000, specific_filename: str = None) -> AudioSegment:
+def mix_bgm(speech_audio: AudioSegment, bgm_dir: str = "assets/bgm", volume_db: int = -12, intro_delay_ms: int = 4000, specific_filename: str = None, tail_delay_ms: int = 3000) -> AudioSegment:
     """
     Mixes speech audio with a background music track.
     
@@ -12,6 +12,7 @@ def mix_bgm(speech_audio: AudioSegment, bgm_dir: str = "assets/bgm", volume_db: 
         volume_db: Volume adjustment for the background music (default -12dB).
         intro_delay_ms: How long the music plays before speech starts (ms).
         specific_filename: Optional filename to force use of a specific track.
+        tail_delay_ms: How long the music plays after speech ends (ms).
         
     Returns:
         AudioSegment: The mixed audio.
@@ -50,8 +51,8 @@ def mix_bgm(speech_audio: AudioSegment, bgm_dir: str = "assets/bgm", volume_db: 
 
     # Calculate total duration required
     speech_len = len(speech_audio)
-    # Total length = intro + speech + 3s tail
-    total_len = intro_delay_ms + speech_len + 3000
+    # Total length = intro + speech + tail
+    total_len = intro_delay_ms + speech_len + tail_delay_ms
 
     # Process BGM Loop
     # If BGM is shorter than needed, loop it
@@ -63,7 +64,7 @@ def mix_bgm(speech_audio: AudioSegment, bgm_dir: str = "assets/bgm", volume_db: 
     bgm = bgm[:total_len]
 
     # Fade in/out BGM
-    bgm = bgm.fade_in(2000).fade_out(3000)
+    bgm = bgm.fade_in(2000).fade_out(tail_delay_ms)
 
     # Overlay speech onto BGM with delay
     final_mix = bgm.overlay(speech_audio, position=intro_delay_ms)

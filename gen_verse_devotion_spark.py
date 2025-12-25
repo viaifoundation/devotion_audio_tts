@@ -47,60 +47,28 @@ import filename_parser
 import argparse
 
 # CLI Args
-if "-?" in sys.argv:
-    print(f"Usage: python {sys.argv[0]} [--prefix PREFIX] [--help]")
-    print("Options:")
-    print("  --prefix PREFIX      Filename prefix (overrides 'FilenamePrefix' in text)")
-    print("  --help, -h           Show this help")
-    print("\n  (Note: You can also add 'FilenamePrefix: <Prefix>' in the input TEXT)")
-    sys.exit(0)
-
 parser = argparse.ArgumentParser()
+parser.add_argument("--input", "-i", type=str, help="Input text file")
 parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
 args, unknown = parser.parse_known_args()
 CLI_PREFIX = args.prefix
 
-TEXT = """
-忍耐生甘甜 (雅各书 5:8) 12/14/2025
+# 1. Try --input argument
+if args.input:
+    print(f"Reading text from file: {args.input}")
+    with open(args.input, "r", encoding="utf-8") as f:
+        TEXT = f.read()
 
-　神说：“要有光”，就有了光。
-(创世记 1:3 )
-大山可以挪开，
-小山可以迁移；
-但我的慈爱必不离开你；
-我平安的约也不迁移。
-这是怜恤你的耶和华说的。
-(以赛亚书 54:10)
-主为我们舍命，我们从此就知道何为爱；我们也当为弟兄舍命。
-(约翰一书 3:16)
-“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。
-(约翰福音 3:16)
+# 2. Try Stdin (Piped)
+elif not sys.stdin.isatty():
+    print("Reading text from Stdin...")
+    TEXT = sys.stdin.read()
 
-弟兄们哪，你们要忍耐，直到主来。看哪，农夫忍耐等候地里宝贵的出产，直到得了秋雨春雨。你们也当忍耐，坚固你们的心，因为主来的日子近了。
-(雅各书 5:7-8 和合本)
-你们也应当忍耐，坚定自己的心；因为主再来的日子近了。
-(雅各书 5:8 新译本)
-
-忍耐生甘甜
-
-你曾在水果未熟时就把它采摘下来吃吗？
-
-也许你被它鲜艳的色彩和空气中弥漫的甜美气味所吸引。可惜你一口咬下去，却发现它没有你预期的熟度。这个水果表面看来可以吃了，然而还缺乏一个因素……
-
-时间。
-
-即使是一个摘果子的简单动作，也能教会我们时间和忍耐的重要性：
-
-“弟兄们哪，你们要忍耐，直到主来。看哪，农夫忍耐等候地里宝贵的出产，直到得了秋雨春雨。你们也当忍耐，坚固你们的心，因为主来的日子近了。 ”（雅各书 5:7-8）
-
-作者雅各在圣灵的默示下，给一群新归信基督且分散在各个地区的犹太人写了这一番话。这些早期的基督徒因他们的初生信仰而面临许多试炼，包括迫害和反对。雅各对他们要耐心等候和坚忍的呼吁，不仅仅是纸上的文字，更是逆境中的一线生机，为他们带来盼望和鼓励。
-
-正如那些早期信徒面临试炼一样，我们在基督信仰的旅途中也会遇到挑战和苦难。因此，你可以效法那些早期的信徒一样选择忍耐；无论你正处于什么人生境况，让圣灵的果子在你里面成熟。当你这样做时，你的品格就会老练、你的信心就会加深、你与神的关系就会变得比你想象的更加甘甜。忍耐总会结出毅力和力量的果子。今天就开始来操练吧！
-
-祷告—
-神啊，你是忍耐与恩慈的完美典范。感谢你一直对我的忍耐！请你显明我生活中需要培养忍耐的层面。求你用盼望和智慧来充满我，以帮助我信靠你，尤其是在我遇上艰难挑战的时候。
-奉耶稣的名，
-阿们。
+# 3. Fallback
+else:
+    TEXT = """
+“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。因为　神差他的儿子降世，不是要定世人的罪，乃是要叫世人因他得救。信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。
+(约翰福音 3:16-18)
 """
 
 

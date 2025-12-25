@@ -1,134 +1,230 @@
 import sys
-from pydub import AudioSegment
+import argparse
+import time
+import io
 import os
+import re
+from google.cloud import texttospeech
+from google.api_core import exceptions
+from pydub import AudioSegment
+import audio_mixer
 from bible_parser import convert_bible_reference
 from text_cleaner import clean_text
-from google.cloud import texttospeech
+import filename_parser
+from datetime import datetime
 
-# Cleaned Chinese devotional text (replace with actual text)
-TEXT = """
-靈晨靈糧11月14日纪明新弟兄：<“恩典25”第35篇：在基督里的恩典>
+# CLI Args
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", "-i", type=str, help="Input text file")
+parser.add_argument("--prefix", type=str, default=None, help="Filename prefix")
+parser.add_argument("--bgm", action="store_true", help="Enable background music (Default: False)")
+parser.add_argument("--bgm-track", type=str, default="AmazingGrace.MP3", help="Specific BGM filename (Default: AmazingGrace.MP3)")
+parser.add_argument("--bgm-volume", type=int, default=-20, help="BGM volume adjustment in dB (Default: -20)")
+parser.add_argument("--bgm-intro", type=int, default=4000, help="BGM intro delay in ms (Default: 4000)")
+parser.add_argument("--rate", type=str, default="+0%", help="TTS Speech rate (e.g. +10%%)")
+parser.add_argument("--speed", type=str, dest="rate", help="Alias for --rate")
 
-我于2011年通过弟兄姐妹介绍进入基督之家第六家，在这之前自己虽然已受洗成为基督徒，但因根基甚浅，甚至是没根基的基督徒，还是随着世界走，自己我行我素，从不听别人的建议，好大喜功。当我第一次看到这么多有热心、爱心和快乐单纯的弟兄姐妹，就像圣经教导的“我实在告诉你们，凡要接受上帝国的，若不像小孩子，绝不能进去。”（马可福音 10:15）这节经文真实地把我当时进到教会所看见的场景印在我心中 ，更加巧合的是碰到了一位弟兄（到教会才知道姓程名阳杰），我们是在一次远志明牧师布道会认识的，我当时认定这就我们的家了！后来良友小组分为A、B两个小组，但两个小组弟兄姐妹们的爱始终在我心中永不分离。“神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不致灭亡，反得永生。”（约翰福音‬3:16）
-通过在小组团契生活和良友小组常去露营的集体生活里，我感受到弟兄们和睦同居的快乐，在纪念教会25周年感恩的历程中，自己和家人都是在主恩典中成长与度过，越是在患难中，越能体会神的恩典在其中。
-我于2015被查出患有肝癌的早期发现，这本来就是不可能的事情，因为肝癌没有早期发现这一说，等到发现就是晚期了，只有等待见上帝的份了！真是感谢主，因着自己连续发高烧低烧而把主要的肝癌查出来，万事互相效力，叫爱神的人得益处。
-感恩当教会知道我得癌症的信息后，马上就为我和我的家做了40天的禁食祷告，神是垂听祷告的神，在圣灵的引导和医生仔细的手术下，我得到医治和平安。耶稣说：“我去医治他。”（马太福音 8:7）；“我留下平安给你们，我把我的平安赐给你们。我所赐给你们的，不像世人所赐的。你们心里不要忧愁，也不要胆怯。”（约翰福音 14:27）在手术后的休养期间，黎牧师每周一带我上韩国祷告山祷告，使我在山上得以平静地聆听神的话，也爱上了上山祷告的生活，更加快乐地面对自己患难，为主做见证，感谢赞美主！
+args, unknown = parser.parse_known_args()
+CLI_PREFIX = args.prefix
+ENABLE_BGM = args.bgm
+BGM_FILE = args.bgm_track
+BGM_VOLUME = args.bgm_volume
+BGM_INTRO_DELAY = args.bgm_intro
+
+# Parse rate (e.g., "+10%" -> 1.1)
+def parse_speed(speed_str):
+    if not speed_str: return 1.0
+    try:
+        if "%" in speed_str:
+            val = float(speed_str.replace("%", ""))
+            return 1.0 + (val / 100.0)
+        return float(speed_str)
+    except Exception as e:
+        print(f"⚠️ Invalid speed format '{speed_str}', using default 1.0. Error: {e}")
+        return 1.0
+
+SPEAKING_RATE = parse_speed(args.rate)
+print(f"TTS Rate: {args.rate} -> {SPEAKING_RATE}x")
+
+# 1. Try --input argument
+if args.input:
+    print(f"Reading text from file: {args.input}")
+    with open(args.input, "r", encoding="utf-8") as f:
+        TEXT = f.read()
+# 2. Try Stdin (Piped)
+elif not sys.stdin.isatty():
+    print("Reading text from Stdin...")
+    TEXT = sys.stdin.read()
+# 3. Fallback
+else:
+    TEXT = """
+“　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不至灭亡，反得永生。因为　神差他的儿子降世，不是要定世人的罪，乃是要叫世人因他得救。信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。
+(约翰福音 3:16-18)
 """
-# Convert Bible references in the text (e.g., '罗马书 1:17' to '罗马书 1章17節')
+
+# Verify credentials exist
+if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+    print("⚠️ WARNING: GOOGLE_APPLICATION_CREDENTIALS not set. Ensure you have authenticated via gcloud or set the env var.")
+
 TEXT = convert_bible_reference(TEXT)
 TEXT = clean_text(TEXT)
-# Split the text into paragraphs
+
 paragraphs = [p.strip() for p in TEXT.strip().split("\n\n") if p.strip()]
 first_paragraphs = [paragraphs[0]] # First paragraph (introduction)
-second_paragraphs = paragraphs[1:] # Remaining paragraphs as individual items (main content, split to avoid length limits)
+second_paragraphs = paragraphs[1:] # Remaining paragraphs
 
-"""
-Gemini-TTS Voices (examples; use with language_code='cmn-CN' for Mandarin China):
-- Achernar (Female)
-- Achird (Male)
-- Algenib (Male)
-- Algieba (Male)
-- Alnilam (Male)
-- Aoede (Female)
-- Autonoe (Female)
-- Callirrhoe (Female)
-- Charon (Male)
-- Despina (Female)
-- Enceladus (Male)
-- Erinome (Female)
-- Fenrir (Male)
-- Gacrux (Female)
-- Iapetus (Male)
-- Kore (Female)
-- Laomedeia (Female)
-- Leda (Female)
-- Orus (Male)
-- Pulcherrima (Female)
-- Puck (Male)
-- Rasalgethi (Male)
-- Sadachbia (Male)
-- Sadaltager (Male)
-- Schedar (Male)
-- Sulafat (Female)
-- Umbriel (Male)
-- Vindemiatrix (Female)
-- Zephyr (Female)
-- Zubenelgenubi (Male)
-Note: Chinese support is in Preview; Tianjin dialect is approximated via prompts.
-"""
-# Voice settings (Note: Set up Google Cloud credentials, e.g., export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json")
-LANGUAGE_CODE = "cmn-CN"  # Mandarin China (Preview)
-MODEL_NAME = "gemini-2.5-pro-tts"  # Gemini TTS model (adjust if needed; check docs for latest)
-FIRST_VOICE = "Charon"  # Example male voice for introduction
-SECOND_VOICE = "Kore"  # Example female voice for main content
-#FIRST_VOICE = "Achird"  # Another male
-#SECOND_VOICE = "Aoede"  # Another female
-FIRST_PROMPT = "Speak in Tianjin dialect with a professional tone, fast pace, and lower tones: "  # Prompt for introduction (approximates dialect)
-SECOND_PROMPT = "Speak in Tianjin dialect with a warm, lively tone: "  # Prompt for main content
+# Global client cache
+_TTS_CLIENT = None
+LANGUAGE_CODE = "cmn-CN"
+MODEL_NAME = "gemini-2.5-pro-tts"
 
-OUTPUT = "/Users/mhuo/Downloads/bread_1114_gemini_tianjin.mp3"
-TEMP_DIR = "/Users/mhuo/Downloads/" # For temp files
+def get_tts_client():
+    global _TTS_CLIENT
+    if _TTS_CLIENT: return _TTS_CLIENT
+    try:
+        _TTS_CLIENT = texttospeech.TextToSpeechClient()
+        return _TTS_CLIENT
+    except Exception as e:
+        print(f"⚠️ Default auth failed: {e}")
+        print("🔄 Attempting to use gcloud access token...")
+        try:
+            import subprocess
+            import google.oauth2.credentials
+            from google.api_core.client_options import ClientOptions
+            result = subprocess.run(["zsh", "-l", "-c", "gcloud auth print-access-token"], capture_output=True, text=True, check=True)
+            token = result.stdout.strip()
+            project_result = subprocess.run(["zsh", "-l", "-c", "gcloud config get-value project"], capture_output=True, text=True, check=True)
+            project_id = project_result.stdout.strip()
+            if not token: raise ValueError("Empty token received from gcloud")
+            creds = google.oauth2.credentials.Credentials(token=token)
+            client_options = ClientOptions(quota_project_id=project_id) if project_id else None
+            _TTS_CLIENT = texttospeech.TextToSpeechClient(credentials=creds, client_options=client_options)
+            print(f"✅ Successfully authenticated using gcloud access token (Project: {project_id}).")
+            return _TTS_CLIENT
+        except Exception as token_error:
+            print(f"❌ Failed to get gcloud token/project: {token_error}")
+            raise e
 
-def generate_audio(text, voice, prompt, output_file):
-    client = texttospeech.TextToSpeechClient()
-    synthesis_input = texttospeech.SynthesisInput(text=text, prompt=prompt)
-    voice_params = texttospeech.VoiceSelectionParams(
-        language_code=LANGUAGE_CODE,
-        name=voice,
-        model_name=MODEL_NAME
-    )
-    audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
+def speak(text: str, voice: str, style_prompt: str = None) -> AudioSegment:
+    print(f"DEBUG: Text to read: {text[:100]}...")
+    client = get_tts_client()
     
-    # Create request with relaxed safety filters to bypass content blocks for benign text
-    request = texttospeech.SynthesizeSpeechRequest(
-        input=synthesis_input,
-        voice=voice_params,
-        audio_config=audio_config,
-        advanced_voice_options=texttospeech.AdvancedVoiceOptions(
-            relax_safety_filters=True,
-        ),
-    )
-    
-    response = client.synthesize_speech(request=request)
-    
-    with open(output_file, "wb") as out:
-        out.write(response.audio_content)
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            synthesis_input = texttospeech.SynthesisInput(text=text)
+            voice_params = texttospeech.VoiceSelectionParams(language_code=LANGUAGE_CODE, name=voice, model_name=MODEL_NAME)
+            audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, speaking_rate=SPEAKING_RATE)
+            request = texttospeech.SynthesizeSpeechRequest(input=synthesis_input, voice=voice_params, audio_config=audio_config)
+            
+            if style_prompt:
+                try:
+                    synthesis_input = texttospeech.SynthesisInput(text=text, prompt=style_prompt)
+                    request.input = synthesis_input
+                except TypeError:
+                     print(f"      [DEBUG] 'prompt' arg not supported in this client version.")
+
+            print(f"      [DEBUG] Sending TTS request (Attempt {attempt+1})...")
+            # Added timeout to prevent hanging indefinitely
+            response = client.synthesize_speech(request=request, timeout=30.0)
+            print(f"      [DEBUG] Received TTS response ({len(response.audio_content)} bytes).")
+            return AudioSegment.from_mp3(io.BytesIO(response.audio_content))
+
+        except (exceptions.Cancelled, exceptions.DeadlineExceeded, exceptions.ServiceUnavailable) as retry_err:
+            print(f"⚠️ API Error ({type(retry_err).__name__}): {retry_err}. Retrying {attempt+1}/{max_retries}...")
+            time.sleep(2)
+            if attempt == max_retries - 1:
+                print("❌ Max retries reached. Attempting fallback...")
+                try:
+                    fallback_voice = "cmn-CN-Wavenet-C" 
+                    if voice in ["Kore", "Aoede"]: fallback_voice = "cmn-CN-Wavenet-A"
+                    fallback_params = texttospeech.VoiceSelectionParams(language_code=LANGUAGE_CODE, name=fallback_voice)
+                    request.voice = fallback_params
+                    request.input = texttospeech.SynthesisInput(text=text) # No prompt
+                    
+                    print(f"      [DEBUG] Sending Fallback TTS request...")
+                    response = client.synthesize_speech(request=request, timeout=30.0)
+                    print(f"   ✅ Fallback success.")
+                    return AudioSegment.from_mp3(io.BytesIO(response.audio_content))
+                except Exception:
+                    raise retry_err
+
+        except Exception as e:
+            if "sensitive or harmful content" in str(e) or "400" in str(e):
+                print(f"⚠️ Safety filter triggered. Removing prompt...")
+                try:
+                     request.input = texttospeech.SynthesisInput(text=text)
+                     print(f"      [DEBUG] Sending Safety-Retry TTS request...")
+                     response = client.synthesize_speech(request=request, timeout=30.0)
+                     return AudioSegment.from_mp3(io.BytesIO(response.audio_content))
+                except Exception:
+                    raise e
+            raise e
+
+# Settings
+FIRST_VOICE = "Charon" 
+SECOND_VOICE = "Kore" 
+FIRST_PROMPT = "Speak in Tianjin dialect with a professional tone, fast pace, and lower tones: "
+SECOND_PROMPT = "Speak in Tianjin dialect with a warm, lively tone: "
 
 def main():
-    # Generate and collect first voice audio segments (for first paragraph)
+    # 1. Output Metadata
+    TEXT_CLEAN = clean_text(TEXT)
+    first_line = TEXT_CLEAN.strip().split('\n')[0]
+    date_match = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", first_line)
+    if date_match:
+        m, d, y = date_match.groups()
+        date_str = f"{y}-{int(m):02d}-{int(d):02d}"
+    else:
+        date_str = datetime.today().strftime("%Y-%m-%d")
+
+    verse_ref = filename_parser.extract_verse_from_text(TEXT_CLEAN)
+    if verse_ref:
+        extracted_prefix = CLI_PREFIX if CLI_PREFIX else filename_parser.extract_filename_prefix(TEXT_CLEAN)
+        filename = filename_parser.generate_filename(verse_ref, date_str, extracted_prefix).replace(".mp3", "_gemini_tts.mp3")
+    else:
+        filename = f"{date_str}_gemini_tts.mp3"
+
+    if ENABLE_BGM and BGM_FILE:
+        bgm_base = os.path.splitext(os.path.basename(BGM_FILE))[0]
+        filename = filename.replace(".mp3", f"_bgm_{bgm_base}.mp3")
+
+    OUTPUT_DIR = os.path.join(os.getcwd(), "output")
+    if not os.path.exists(OUTPUT_DIR): os.makedirs(OUTPUT_DIR)
+    OUTPUT_PATH = os.path.join(OUTPUT_DIR, filename)
+    print(f"Target Output: {OUTPUT_PATH}")
+
+    # 2. Generate Audio
     first_segments = []
+    print("--- Section 1: Intro ---")
     for i, para in enumerate(first_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_first_bread_{i}.mp3"
-        generate_audio(para, FIRST_VOICE, FIRST_PROMPT, temp_file)
-        print(f"✅ Generated first voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
+        segment = speak(para, FIRST_VOICE, FIRST_PROMPT)
         first_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
-    # Concatenate first segments with short silence between
-    silence = AudioSegment.silent(duration=500) # 0.5s pause; adjust as needed
+    
     first_audio = AudioSegment.empty()
-    for i, segment in enumerate(first_segments):
-        first_audio += segment
-        if i < len(first_segments) - 1: # Add silence between segments, not after last
-            first_audio += silence
-    # Generate and collect second voice audio segments (for remaining paragraphs)
+    silence = AudioSegment.silent(duration=500, frame_rate=24000)
+    for seg in first_segments: first_audio += seg + silence
+
     second_segments = []
+    print("--- Section 2: Main Content ---")
     for i, para in enumerate(second_paragraphs):
-        temp_file = f"{TEMP_DIR}temp_second_bread_{i}.mp3"
-        generate_audio(para, SECOND_VOICE, SECOND_PROMPT, temp_file)
-        print(f"✅ Generated second voice chunk {i}: {temp_file}")
-        segment = AudioSegment.from_mp3(temp_file)
+        segment = speak(para, SECOND_VOICE, SECOND_PROMPT)
         second_segments.append(segment)
-        os.remove(temp_file) # Clean up immediately
-    # Concatenate second segments with short silence between
+
     second_audio = AudioSegment.empty()
-    for i, segment in enumerate(second_segments):
-        second_audio += segment
-        if i < len(second_segments) - 1: # Add silence between segments, not after last
-            second_audio += silence
-    # Combine first and second with a pause between sections
+    for seg in second_segments: second_audio += seg + silence
+
     combined_audio = first_audio + silence + second_audio
-    combined_audio.export(OUTPUT, format="mp3")
-    print(f"✅ Combined audio saved: {OUTPUT}")
+    combined_audio = combined_audio.set_frame_rate(24000)
+
+    if ENABLE_BGM:
+        print(f"🎵 Mixing BGM: {BGM_FILE}")
+        combined_audio = audio_mixer.mix_bgm(combined_audio, specific_filename=BGM_FILE, volume_db=BGM_VOLUME, intro_delay_ms=BGM_INTRO_DELAY)
+
+    PRODUCER = "VI AI Foundation"
+    TITLE = first_line
+    combined_audio.export(OUTPUT_PATH, format="mp3", bitrate="192k", tags={'title': TITLE, 'artist': PRODUCER})
+    print(f"✅ Saved: {OUTPUT_PATH}")
+
 if __name__ == "__main__":
     main()

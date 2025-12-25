@@ -150,6 +150,30 @@ The audio will be generated in your `~/Downloads` folder with a filename like:
 - `bible_parser.py`: Normalizes Chinese Bible references for better TTS pronunciation (e.g., "3:16" -> "3章16节").
 - `text_cleaner.py`: Formats text, adding ensuring spacing around "God" (神).
 
+## Standalone Utilities
+
+### Background Music Mixer (`mix_bgm.py`)
+A robust CLI tool to mix background music with any existing speech audio file.
+
+**Usage:**
+```bash
+python mix_bgm.py --input speech.mp3 [OPTIONS]
+```
+
+**Parameters & Defaults:**
+| Argument | Description | Default Value |
+| :--- | :--- | :--- |
+| `--input`, `-i` | Input speech file (Required) | N/A |
+| `--bgm-track` | Specific BGM filename in `assets/bgm` | `AmazingGrace.mp3` |
+| `--bgm-volume` | Volume adjustment for BGM (dB) | `-15` |
+| `--bgm-intro` | Delay before speech starts (ms) | `5000` |
+| `--bgm-tail` | Delay after speech ends (fades out) (ms) | `4000` |
+
+**Example:**
+```bash
+python mix_bgm.py --input output/my_audio.mp3 --bgm-track OHolyNight.mp3 --bgm-volume -10
+```
+
 ## Requirements
 
 Global requirements are listed in `requirements.txt`. Specific providers may have additional needs:
