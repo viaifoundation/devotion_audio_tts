@@ -20,3 +20,5 @@ sortedcontainers           # Fixes current error (required by modelscope jsonplu
 inflect                    # Required by CosyVoice text normalization
 transformers>=4.40.0        # Required for Qwen2ForCausalLM
 accelerate                  # Required for loading models efficiently
+sentencepiece               # Required for tokenizer
+scipy                       # Common audio dependency
