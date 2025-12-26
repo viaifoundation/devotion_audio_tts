@@ -99,9 +99,11 @@ else:
 print("Loading CosyVoice-300M-Instruct (local offline)...")
 # CosyVoice automatically handles model download via modelscope if not present
 try:
-    # Auto-enable FP16 if CUDA is available for speed
-    use_fp16 = torch.cuda.is_available()
-    print(f"Loading CosyVoice-300M-Instruct (local offline)... [CUDA={use_fp16}, FP16={use_fp16}]")
+    # NOTE: FP16 causes NaN/silence on some GPUs (e.g., Blackwell/GB10). 
+    # Use FP32 for stability. GPU acceleration still works without FP16.
+    use_cuda = torch.cuda.is_available()
+    use_fp16 = False  # Disabled due to NaN issues on Spark GPU
+    print(f"Loading CosyVoice-300M-Instruct (local offline)... [CUDA={use_cuda}, FP16={use_fp16}]")
     cosyvoice = CosyVoice('iic/CosyVoice-300M-Instruct', fp16=use_fp16)
 except Exception as e:
     print(f"❌ Error loading model: {e}")
