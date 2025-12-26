@@ -1,5 +1,5 @@
 # Base image for NVIDIA DGX Spark (ARM64/Blackwell)
-FROM nvcr.io/nvidia/pytorch:24.01-py3
+FROM nvcr.io/nvidia/pytorch:24.10-py3
 
 # Set working directory
 WORKDIR /workspace/github/devotion_tts
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 # However, to be safe and use current requirements, we can copy them in.
 
 # Copy requirements from the context (User needs to run build from devotion_tts root)
-COPY requirements-cosy.txt /tmp/requirements-cosy.txt
+COPY requirements-cosy-spark.txt /tmp/requirements-cosy-spark.txt
 # We assume CosyVoice is a sibling, so we can't easily COPY it unless we change build context.
 # Instead, we will rely on the run script to install dependencies dynamically or 
 # we instruct the user to copy/context properly. 
@@ -53,7 +53,7 @@ RUN pip install --no-cache-dir \
     wget
 
 # Install devotion_tts specific deps
-RUN pip install -r /tmp/requirements-cosy.txt
+RUN pip install -r /tmp/requirements-cosy-spark.txt
 
 # Set PYTHONPATH to include CosyVoice directories (assuming standard mount path)
 ENV PYTHONPATH="${PYTHONPATH}:/workspace/github/CosyVoice:/workspace/github/CosyVoice/third_party/Matcha-TTS"
