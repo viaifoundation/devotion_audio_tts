@@ -1,0 +1,29 @@
+# Requirements for GPT-SoVITS on Spark (NVIDIA PyTorch Container)
+# Torch/Audio are provided by base image, but we list compatible versions or minimal deps
+
+numpy<2.0.0
+scipy
+tensorboard
+librosa
+numba
+tqdm
+cn2an
+pypinyin
+jieba_fast
+# ffmpeg-python is often needed for audio handling
+ffmpeg-python
+# Text processing
+langdetect
+# Inference server/API support (optional but good to have)
+fastapi
+uvicorn
+# Dependencies for the WebUI if needed later, but focusing on CLI for now
+gradio
+# GPT-SoVITS specific
+einops
+transformers
+sentencepiece
+funasr
+modelscope
+# Pydub for audio manipulation in our scripts
+pydub
