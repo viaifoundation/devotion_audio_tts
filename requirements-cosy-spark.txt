@@ -9,7 +9,7 @@ peft                        # Adapters (removes diffusers warning)
 addict                      # Required by modelscope
 datasets<4.0.0              # Avoid import errors
 # torch                     # Use container-provided PyTorch
-# torchaudio                # Use container-provided Torchaudio
+torchaudio                  # Required for audio I/O (install matching version)
 # torchvision               # Use container-provided Torchvision
 pydub>=0.25.1               # Audio concatenation & MP3 export
 numpy>=1.26.0               # Array processing
