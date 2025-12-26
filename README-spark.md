@@ -32,12 +32,34 @@ We provide a helper script to build and run the environment automatically.
 2. Mount your `~/github/CosyVoice` and `~/github/devotion_tts` directories.
 3. Drop you into an interactive shell inside the container.
 
-### 2. Generate
+### 2. Manual Run (Advanced)
+If you prefer not to use the script or need to debug:
+
+```bash
+docker run --gpus all -it --rm \
+    --name devotion_cosy_runner \
+    --net=host \
+    --shm-size=16g \
+    -v "$(pwd)":/workspace/github/devotion_tts \
+    -v "$(realpath ../CosyVoice)":/workspace/github/CosyVoice \
+    -v "$HOME/.cache/modelscope":/root/.cache/modelscope \
+    -w /workspace/github/devotion_tts \
+    devotion-cosy-spark
+```
+*Note: `--gpus all` is critical for GPU access.*
+
+### 3. Generate
 Inside the container, run:
 
 ```bash
 python gen_verse_devotion_cosy.py
 ```
+
+> [!TIP]
+> **Dependency Updates**: If you changed requirements (like we did recently), force a rebuild of the image:
+> ```bash
+> ./scripts/run_spark_cosy.sh --build
+> ```
 
 ---
 
