@@ -36,11 +36,8 @@ try:
     from cosyvoice.cli.cosyvoice import CosyVoice
     from cosyvoice.utils.file_utils import load_wav
 except ImportError as e:
-    import traceback
     print(f"❌ Failed to import CosyVoice: {e}")
-    traceback.print_exc()
     print(f"Ensure you have cloned the repo to {COSYVOICE_PATH} and installed its requirements.")
-    sys.exit(1)
     sys.exit(1)
 
 from bible_parser import convert_bible_reference
