@@ -158,26 +158,22 @@ print("=== END DEBUG ===")
 paragraphs = [p.strip() for p in re.split(r'\n{2,}', TEXT.strip()) if p.strip()]
 
 # Built-in CosyVoice voices
-# NOTE: CosyVoice SFT inference uses specific speaker names.
-# Common ones: "中文女", "中文男", "日语男", "粤语女", "英文女", "英文男", "韩语女"
-voices = ["中文女", "中文男", "英文女", "中文女", "中文男"]
+# CosyVoice-300M-Instruct supports: 中文女, 中文男, 日语男, 粤语女, 英文女, 英文男, 韩语女
+VOICES = ["中文女", "中文男", "英文女", "中文女", "中文男"]
 
 def speak(text: str, voice: str) -> AudioSegment:
+    """Convert text to audio using CosyVoice."""
     print(f"DEBUG: Text to read: {text[:100]}...")
-    # inference_sft returns a result iterable usually, or creates a generator
-    # output format: {'tts_speech': tensor, 'samplerate': 22050}
-    # It might return a generator, so we iterate
-    
     print(f"   Synthesizing ({len(text)} chars) with {voice}...")
-    output_gen = cosyvoice.inference_sft(text, voice)
     
+    output_gen = cosyvoice.inference_sft(text, voice)
     final_audio = AudioSegment.empty()
     
-    # Iterate through the generator
     for item in output_gen:
         if 'tts_speech' in item:
             audio_np = item['tts_speech'].numpy()
-            # Normalize float -1..1 to int16
+            # Fix NaN/Inf values that cause silence
+            audio_np = np.nan_to_num(audio_np, nan=0.0, posinf=1.0, neginf=-1.0)
             audio_int16 = (audio_np * 32767).astype(np.int16)
             segment = AudioSegment(
                 audio_int16.tobytes(),
@@ -189,56 +185,23 @@ def speak(text: str, voice: str) -> AudioSegment:
             
     return final_audio
 
-# Group paragraphs into 5 logical sections
-if len(paragraphs) < 5:
-    logical_sections = [[p] for p in paragraphs]
-else:
-    logical_sections = [
-        [paragraphs[0]],              # Intro
-        [paragraphs[1]],              # Scripture 1
-        [paragraphs[2]],              # Scripture 2
-        paragraphs[3:-1],             # Main Body
-        [paragraphs[-1]]              # Prayer
-    ]
-
-print(f"Processing {len(logical_sections)} logical sections...")
-# Voice mapping (Rotation)
-# CosyVoice-300M-Instruct supports: 中文女, 中文男, 日语男, 粤语女, 英文女, 英文男, 韩语女
-# We add English Male and Japanese Male because they can speak Chinese too (Cross-lingual)
-voices = ["中文女", "英文男", "中文男", "日语男", "中文女"]
-section_titles = ["Intro", "Scripture 1", "Scripture 2", "Main Body", "Prayer"]
-
-final_segments = []
-global_p_index = 0
-
-for i, section_paras in enumerate(logical_sections):
-    title = section_titles[i] if i < len(section_titles) else f"Section {i+1}"
-    print(f"--- Section {i+1}: {title} ---")
-    
-    section_audio = AudioSegment.empty()
-    silence_between_paras = AudioSegment.silent(duration=700, frame_rate=22050)
-
-    for j, para in enumerate(section_paras):
-        voice = voices[global_p_index % len(voices)]
-        print(f"  > Part {i+1}.{j+1} - {voice}")
-        global_p_index += 1
-        current_segment = speak(para, voice)
-        section_audio += current_segment
-        
-        if j < len(section_paras) - 1:
-            section_audio += silence_between_paras
-            
-    final_segments.append(section_audio)
+# Process paragraphs directly (no complex section grouping)
+print(f"Processing {len(paragraphs)} paragraphs...")
 
 final = AudioSegment.empty()
-silence_between_sections = AudioSegment.silent(duration=1000, frame_rate=22050)
+silence_between = AudioSegment.silent(duration=700, frame_rate=22050)
 
-for i, seg in enumerate(final_segments):
-    final += seg
-    if i < len(final_segments) - 1:
-        final += silence_between_sections
+for i, para in enumerate(paragraphs):
+    voice = VOICES[i % len(VOICES)]
+    print(f"  > Paragraph {i+1}/{len(paragraphs)} - {voice} ({len(para)} chars)")
+    
+    segment = speak(para, voice)
+    final += segment
+    
+    if i < len(paragraphs) - 1:
+        final += silence_between
 
-# Convert to 24k for consistency with others if desired, or keep 22k
+# Convert to 24k for consistency
 final = final.set_frame_rate(24000)
 
 # Add Background Music (Optional)
@@ -250,9 +213,11 @@ if ENABLE_BGM:
         volume_db=BGM_VOLUME,
         intro_delay_ms=BGM_INTRO_DELAY
     )
-# Metadata extraction
+
+# Metadata
 PRODUCER = "VI AI Foundation"
 TITLE = TEXT.strip().split('\n')[0]
 
 final.export(OUTPUT_PATH, format="mp3", bitrate="192k", tags={'title': TITLE, 'artist': PRODUCER})
-print(f"Success! Saved → {OUTPUT_PATH}")
+print(f"✅ Success! Saved → {OUTPUT_PATH}")
+
