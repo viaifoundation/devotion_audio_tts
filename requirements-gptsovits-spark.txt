@@ -27,3 +27,4 @@ funasr
 modelscope
 # Pydub for audio manipulation in our scripts
 pydub
+edge-tts
